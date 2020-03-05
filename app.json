@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Tab Navigation Template",
+    "name": "OptiresNG Client",
     "slug": "OptiresNGClient",
     "privacy": "public",
     "sdkVersion": "36.0.0",
@@ -9,14 +9,14 @@
       "android",
       "web"
     ],
-    "version": "1.0.0",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "optiresng",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0096FF"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -25,7 +25,17 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "location"
+        ],
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "För bästa funktion behöver OptiresNG behöver tillgång till din position hela tiden",
+        "NSLocationWhenInUseUsageDescription": "OptiresNG behöver tillgång till din position"
+      },
+      "bundleIdentifier": "se.optiresng.client",
+      "buildNumber": "0.1.0",
+      "usesNonExemptEncryption": false,
+      "supportsTablet": false
     }
   }
 }
