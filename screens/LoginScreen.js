@@ -1,58 +1,82 @@
-import * as React from 'react';
+import React, {useState, useContext} from 'react';
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as WebBrowser from 'expo-web-browser';
+import axios from 'axios';
 
 import { MonoText } from '../components/StyledText';
 
-export default function HomeScreen() {
+export default function LoginScreen() {
+  const serverUrl = "https://optiresng.eu.ngrok.io";
+  const [isLoggedIn, setIsLoggedIn] = useState(undefined);
+
+  function checkLogin() {
+    console.log('Calling login screen!');
+    axios.get(serverUrl + '/isLoggedIn')
+      .then(serverResponse => {
+        setIsLoggedIn(serverResponse && serverResponse.data.status);
+      })
+      .catch(error => {
+        console.log('Returned', error);
+        setIsLoggedIn(false);
+      });
+  }
+
+  checkLogin();
+
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.welcomeContainer}>
-          <Image
-            source={
-              __DEV__
-                ? require('../assets/images/robot-dev.png')
-                : require('../assets/images/robot-prod.png')
-            }
-            style={styles.welcomeImage}
-          />
-        </View>
-
-        <View style={styles.getStartedContainer}>
-          <DevelopmentModeNotice />
-
-          <Text style={styles.getStartedText}>Open up the code for this screen:</Text>
-
-          <View style={[styles.codeHighlightContainer, styles.homeScreenFilename]}>
-            <MonoText>screens/HomeScreen.js</MonoText>
+      <View style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+          <View style={styles.welcomeContainer}>
+            {(isLoggedIn === true ? <Text>Is Logged in! </Text> :
+              (isLoggedIn === undefined ? <Text>Looking for status! </Text> :
+                <Text>Is NOT Logged in!</Text>))}
+            <Image
+              source={
+                __DEV__
+                  ? require('../assets/images/robot-dev.png')
+                  : require('../assets/images/robot-prod.png')
+              }
+              style={styles.welcomeImage}
+            />
           </View>
 
-          <Text style={styles.getStartedText}>
-            Change any of the text, save the file, and your app will automatically reload.
-          </Text>
-        </View>
+          <View style={styles.getStartedContainer}>
+            <DevelopmentModeNotice/>
 
-        <View style={styles.helpContainer}>
-          <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
-            <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+            <Text style={styles.getStartedText}>Open up the code for this screen:</Text>
 
-      <View style={styles.tabBarInfoContainer}>
-        <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
+            <View style={[styles.codeHighlightContainer, styles.homeScreenFilename]}>
+              <MonoText>screens/HomeScreen.js</MonoText>
+            </View>
 
-        <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-          <MonoText style={styles.codeHighlightText}>navigation/BottomTabNavigator.js</MonoText>
+            <Text style={styles.getStartedText}>
+              Change any of the text, save the file, and your app will automatically reload.
+            </Text>
+          </View>
+
+          <View style={styles.helpContainer}>
+            <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
+              <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={checkLogin} style={styles.helpLink}>
+              <Text style={styles.helpLinkText}>Login</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+
+        <View style={styles.tabBarInfoContainer}>
+          <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
+
+          <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
+            <MonoText style={styles.codeHighlightText}>navigation/BottomTabNavigator.js</MonoText>
+          </View>
         </View>
       </View>
-    </View>
   );
 }
 
-HomeScreen.navigationOptions = {
+LoginScreen.navigationOptions = {
   header: null,
 };
 

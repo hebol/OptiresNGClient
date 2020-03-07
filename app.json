@@ -19,7 +19,9 @@
       "backgroundColor": "#0096FF"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 10000
     },
     "assetBundlePatterns": [
       "**/*"
@@ -34,7 +36,9 @@
       },
       "bundleIdentifier": "se.optiresng.client",
       "buildNumber": "0.1.0",
-      "usesNonExemptEncryption": false,
+      "config" : {
+        "usesNonExemptEncryption": false
+      },
       "supportsTablet": false
     }
   }
