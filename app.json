@@ -36,10 +36,11 @@
       },
       "bundleIdentifier": "se.optiresng.client",
       "buildNumber": "0.1.0",
-      "config" : {
+      "config": {
         "usesNonExemptEncryption": false
       },
       "supportsTablet": false
-    }
+    },
+    "description": ""
   }
 }

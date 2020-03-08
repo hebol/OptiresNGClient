@@ -1,30 +1,98 @@
-import * as React from 'react';
+import React, {useState} from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
+import {locationService} from '../components/LocationService';
+import config from '../constants/Config';
+import axios from "axios";
+
+
 export default function NavigationScreen() {
+  const [statusMessage, setStatusMessage] = useState('');
+
+  const receivedNewLocation = (location) => {
+    setStatusMessage('Received location', JSON.stringify(location.coords));
+    sendPosition(location.coords);
+  };
+
+  function sendPosition(location) {
+    setStatusMessage('Sending position');
+    axios.post(config.serverUrl + '/api/userposition', location)
+      .then(serverResponse => {
+        setStatusMessage('Position sent');
+      })
+      .catch(error => {
+        console.log('Returned', error);
+        setStatusMessage('Error sending position:' + error && error.message);
+      });
+  }
+  const getNumberOfPositions = () => {
+    return axios.get(config.serverUrl + '/api/userposition/count');
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <OptionButton
-        icon="md-school"
-        label="Read the Expo documentation"
-        onPress={() => WebBrowser.openBrowserAsync('https://docs.expo.io')}
+        icon="md-play"
+        label="Starta följ position"
+        onPress={() => {
+          console.log('Trying to subscribe!');
+          locationService.startLocationTracking();
+          locationService.subscribe(receivedNewLocation);
+          setStatusMessage('Prenumeration startad');
+        }}
+      />
+
+      <OptionButton
+        icon="md-square"
+        label="Sluta följ position"
+        onPress={() => {
+          locationService.stopLocationTracking();
+          locationService.unsubscribe(receivedNewLocation);
+          setStatusMessage('Prenumeration avslutad');
+        }}
       />
 
       <OptionButton
         icon="md-compass"
-        label="Read the React Navigation documentation"
-        onPress={() => WebBrowser.openBrowserAsync('https://reactnavigation.org')}
+        label="Check permissions"
+        onPress={() => {
+          locationService.isAllowedLocationTracking()
+            .then(response => setStatusMessage(`Is allowed: ${response}`));
+        }}
       />
 
       <OptionButton
-        icon="ios-chatboxes"
-        label="Ask a question on the forums"
-        onPress={() => WebBrowser.openBrowserAsync('https://forums.expo.io')}
+        icon="md-compass"
+        label="Antal positioner"
+        onPress={() => {
+          getNumberOfPositions()
+            .then(response => {
+              setStatusMessage(`Antal positioner: ${response.data.count}, senaste: ${response.data.last.createdAt}`)
+            });
+        }}
+      />
+
+      <OptionButton
+        icon="md-locate"
+        label="Hämta aktuell position"
+        onPress={() => {
+          locationService.getCurrentLocation()
+            .then(location => {
+              console.log('Received', JSON.stringify(location));
+              sendPosition(location.coords);
+            });
+        }}
         isLastOption
       />
+
+      <View style={styles.statusContainer}>
+        <Text style={styles.statusText}>{statusMessage}</Text>
+      </View>
+
+
     </ScrollView>
   );
 }
@@ -47,7 +115,7 @@ function OptionButton({ icon, label, onPress, isLastOption }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
+    backgroundColor: '#0096FF',
   },
   contentContainer: {
     paddingTop: 15,
@@ -56,7 +124,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   option: {
-    backgroundColor: '#fdfdfd',
+    backgroundColor: '#0096FF',
     paddingHorizontal: 15,
     paddingVertical: 15,
     borderWidth: StyleSheet.hairlineWidth,

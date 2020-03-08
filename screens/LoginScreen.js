@@ -1,77 +1,107 @@
-import React, {useState, useContext} from 'react';
+import React, {useState} from 'react';
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import * as WebBrowser from 'expo-web-browser';
 import axios from 'axios';
+import config from '../constants/Config';
+import moveToBottom from '../components/moveToBottom'
 
-import { MonoText } from '../components/StyledText';
+import { AuthSession } from 'expo';
+const FB_APP_ID = '284161059217962';
+
+function toQueryString(params) {
+  var queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
+  return queryString.length > 0 ? '?' + encodeURI(queryString) : '';
+}
 
 export default function LoginScreen() {
-  const serverUrl = "https://optiresng.eu.ngrok.io";
   const [isLoggedIn, setIsLoggedIn] = useState(undefined);
+  const [statusMessage, setStatusMessage] = useState('');
+
+  let loginAsync = async () => {
+    const redirectUrl = AuthSession.getRedirectUrl();
+    let authUrl = 'https://www.facebook.com/v6.0/dialog/oauth' + toQueryString({
+      client_id: FB_APP_ID,
+      redirect_uri: redirectUrl,
+      code: 'code'
+    });
+    console.log(`Redirect URL (add this to Facebook): ${redirectUrl}`);
+    console.log(`AuthURL is:  ${authUrl}`);
+    setStatusMessage('');
+    const result = await AuthSession.startAsync({ authUrl: authUrl});
+
+    if (result.type === 'success') {
+      console.log('Login success!' + JSON.stringify(result,null, 2));
+      setStatusMessage('So now we are logged in to FB!');
+
+      const loginStatus = await axios.get(config.serverUrl + '/auth/facebook/callback2?code=' + result.params.code)
+        .then((response) => {
+          console.log('received from login: ' + JSON.stringify(response));
+          setStatusMessage('Received login data: '+ response);
+          return response;
+        })
+        .then(response => {
+          setStatusMessage('Login done!');
+          return response;
+        })
+        .catch((error) => {
+          setStatusMessage('Error login: '+ error && error.message);
+          console.error('SNAFU' + error);
+        });
+
+    } else {
+      if (result.type === 'cancel') {
+        setStatusMessage('Login cancelled!');
+      } else {
+        if (result.type === 'error') {
+          setStatusMessage('Login error!');
+        } else {
+          setStatusMessage('Unknown result type: ' + result.type);
+        }
+      }
+    }
+  };
 
   function checkLogin() {
-    console.log('Calling login screen!');
-    axios.get(serverUrl + '/isLoggedIn')
+    setStatusMessage('Checking login');
+    axios.get(config.serverUrl + '/isLoggedIn')
       .then(serverResponse => {
         setIsLoggedIn(serverResponse && serverResponse.data.status);
+        setStatusMessage('Login ready');
       })
       .catch(error => {
         console.log('Returned', error);
         setIsLoggedIn(false);
+        setStatusMessage('Error checking login:' + error && error.message);
       });
   }
-
-  checkLogin();
 
   return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
           <View style={styles.welcomeContainer}>
+            <TouchableOpacity onPress={checkLogin}>
+            <Image source ={require('../assets/images/icon.png')}  style={styles.loginImage}/>
             {(isLoggedIn === true ? <Text>Is Logged in! </Text> :
               (isLoggedIn === undefined ? <Text>Looking for status! </Text> :
                 <Text>Is NOT Logged in!</Text>))}
-            <Image
-              source={
-                __DEV__
-                  ? require('../assets/images/robot-dev.png')
-                  : require('../assets/images/robot-prod.png')
-              }
-              style={styles.welcomeImage}
-            />
+            </TouchableOpacity>
           </View>
 
-          <View style={styles.getStartedContainer}>
-            <DevelopmentModeNotice/>
-
-            <Text style={styles.getStartedText}>Open up the code for this screen:</Text>
-
-            <View style={[styles.codeHighlightContainer, styles.homeScreenFilename]}>
-              <MonoText>screens/HomeScreen.js</MonoText>
-            </View>
-
-            <Text style={styles.getStartedText}>
-              Change any of the text, save the file, and your app will automatically reload.
-            </Text>
+          <View style={styles.loginButtonContainer}>
+            <TouchableOpacity onPress={loginAsync} style={styles.loginButton}>
+              <Text style={styles.loginText}>Login</Text>
+            </TouchableOpacity>
           </View>
 
-          <View style={styles.helpContainer}>
-            <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
-              <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={checkLogin} style={styles.helpLink}>
-              <Text style={styles.helpLinkText}>Login</Text>
-            </TouchableOpacity>
+          {moveToBottom(
+            <View style={styles.loginContainer}>
+              <DevelopmentModeNotice/>
+            </View>)
+          }
+          <View style={styles.statusContainer}>
+            <Text style={styles.statusText}>{statusMessage}</Text>
           </View>
         </ScrollView>
-
-        <View style={styles.tabBarInfoContainer}>
-          <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
-
-          <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-            <MonoText style={styles.codeHighlightText}>navigation/BottomTabNavigator.js</MonoText>
-          </View>
-        </View>
       </View>
   );
 }
@@ -82,16 +112,10 @@ LoginScreen.navigationOptions = {
 
 function DevelopmentModeNotice() {
   if (__DEV__) {
-    const learnMoreButton = (
-      <Text onPress={handleLearnMorePress} style={styles.helpLinkText}>
-        Learn more
-      </Text>
-    );
-
     return (
       <Text style={styles.developmentModeText}>
         Development mode is enabled: your app will be slower but you can use useful development
-        tools. {learnMoreButton}
+        tools.
       </Text>
     );
   } else {
@@ -103,20 +127,10 @@ function DevelopmentModeNotice() {
   }
 }
 
-function handleLearnMorePress() {
-  WebBrowser.openBrowserAsync('https://docs.expo.io/versions/latest/workflow/development-mode/');
-}
-
-function handleHelpPress() {
-  WebBrowser.openBrowserAsync(
-    'https://docs.expo.io/versions/latest/get-started/create-a-new-app/#making-your-first-change'
-  );
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#0096FF",
   },
   developmentModeText: {
     marginBottom: 20,
@@ -124,14 +138,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 19,
     textAlign: 'center',
+    bottom: 0,
   },
   contentContainer: {
     paddingTop: 30,
+    height: '100%',
   },
   welcomeContainer: {
     alignItems: 'center',
     marginTop: 10,
     marginBottom: 20,
+  },
+  loginImage: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
+    marginTop: 3,
+    marginLeft: -10,
   },
   welcomeImage: {
     width: 100,
@@ -140,20 +163,16 @@ const styles = StyleSheet.create({
     marginTop: 3,
     marginLeft: -10,
   },
-  getStartedContainer: {
+  loginContainer: {
     alignItems: 'center',
     marginHorizontal: 50,
   },
+  statusContainer: {
+    alignItems: 'center',
+    marginHorizontal: 20,
+  },
   homeScreenFilename: {
     marginVertical: 7,
-  },
-  codeHighlightText: {
-    color: 'rgba(96,100,109, 0.8)',
-  },
-  codeHighlightContainer: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 3,
-    paddingHorizontal: 4,
   },
   getStartedText: {
     fontSize: 17,
@@ -189,15 +208,23 @@ const styles = StyleSheet.create({
   navigationFilename: {
     marginTop: 5,
   },
-  helpContainer: {
+  loginButtonContainer: {
     marginTop: 15,
     alignItems: 'center',
   },
-  helpLink: {
+  loginButton: {
     paddingVertical: 15,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#fff',
+    padding: 10,
   },
-  helpLinkText: {
+  loginText: {
+    fontSize: 30,
+    color: '#fff',
+  },
+  statusText: {
     fontSize: 14,
-    color: '#2e78b7',
+    color: '#fff',
   },
 });
