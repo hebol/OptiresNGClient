@@ -13,15 +13,17 @@ export default function NavigationScreen() {
   const [statusMessage, setStatusMessage] = useState('');
 
   const receivedNewLocation = (location) => {
-    setStatusMessage('Received location', JSON.stringify(location.coords));
-    sendPosition(location.coords);
+    const value = JSON.stringify(location);
+    console.log('Will set status message', value);
+    setStatusMessage('Received location' + value);
+    sendPosition(location && location.coords);
   };
 
   function sendPosition(location) {
     setStatusMessage('Sending position');
     axios.post(config.serverUrl + '/api/userposition', location)
       .then(serverResponse => {
-        setStatusMessage('Position sent');
+        setStatusMessage('Position sent: ' + JSON.stringify(location));
       })
       .catch(error => {
         console.log('Returned', error);
@@ -56,7 +58,7 @@ export default function NavigationScreen() {
       />
 
       <OptionButton
-        icon="md-compass"
+        icon="md-apps"
         label="Check permissions"
         onPress={() => {
           locationService.isAllowedLocationTracking()

@@ -3,13 +3,8 @@ import * as TaskManager from 'expo-task-manager';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 
-
 const LocationService = () => {
   let subscribers = {};
-  let location = {
-    latitude: 0,
-    longitude: 0
-  };
 
   return {
     isAllowedLocationTracking: () => {
@@ -28,7 +23,7 @@ const LocationService = () => {
       console.log('Has added subscriber!');
     },
     setLocation: (coords) => {
-      location = coords;
+      const location = coords;
       Object.values(subscribers).forEach((sub) => sub(location))
     },
     unsubscribe: (sub) => {
@@ -42,7 +37,7 @@ const LocationService = () => {
       }
 
       Location.startLocationUpdatesAsync('RECEIVE_LOCATION_TASK', {
-        accuracy: Location.Accuracy.High,
+        accuracy: Location.Accuracy.BestForNavigation,
         showsBackgroundLocationIndicator: true,
         distanceInterval: 1000
       })
@@ -65,7 +60,7 @@ const LocationService = () => {
     getCurrentLocation: async () => {
       console.log('Will get current location');
       if (await locationService.isAllowedLocationTracking()) {
-        return Location.getCurrentPositionAsync({accuracy: Location.Accuracy.High})
+        return Location.getCurrentPositionAsync({accuracy: Location.Accuracy.BestForNavigation})
           .then(location => {
             console.log('Received new location', location);
             return location;
@@ -77,29 +72,22 @@ const LocationService = () => {
       } else {
         return Promise.reject('Not allowed location');
       }
-
-      Location.startLocationUpdatesAsync('RECEIVE_LOCATION_TASK', {
-        accuracy: Location.Accuracy.High,
-        showsBackgroundLocationIndicator: true
-      })
-        .then(response => {
-          console.log('received response from service', response);
-        })
-        .catch(error => {
-          console.log('received error from service', error);
-        });
     }
   }
 };
 
 export const locationService = LocationService();
 
-TaskManager.defineTask('RECEIVE_LOCATION_TASK', ({ data: { locations }, error }) => {
+TaskManager.defineTask('RECEIVE_LOCATION_TASK', ({ data: {locations}, error }) => {
   if (error) {
-    // check `error.message` for more details.
+    console.log('Received error for locations', error && error.message);
     return;
   }
-  console.log('Received new locations', locations);
-  locationService.setLocation(locations);
+  console.log('Received new locations', locations, typeof locations);
+  if (!Array.isArray(locations)) {
+    console.log('Was not array, creating it');
+    locations = [locations];
+  }
+  locations.forEach(location => locationService.setLocation(location));
 });
 
