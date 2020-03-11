@@ -170,6 +170,7 @@ const styles = StyleSheet.create({
   statusContainer: {
     alignItems: 'center',
     marginHorizontal: 20,
+    bottom: 0,
   },
   homeScreenFilename: {
     marginVertical: 7,

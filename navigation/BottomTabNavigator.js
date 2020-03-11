@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import TabBarIcon from '../components/TabBarIcon';
 import LoginScreen from '../screens/LoginScreen';
 import NavigationScreen from '../screens/NavigationScreen';
+import StatusScreen from '../screens/StatusScreen';
 import {StyleSheet} from "react-native";
 
 const BottomTab = createBottomTabNavigator();
@@ -22,6 +23,14 @@ export default function BottomTabNavigator({ navigation, route }) {
         options={{
           title: 'Login',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-lock" />,
+        }}
+      />
+      <BottomTab.Screen
+        name="Status"
+        component={StatusScreen}
+        options={{
+          title: 'Status',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="ios-information-circle" />,
         }}
       />
       <BottomTab.Screen
