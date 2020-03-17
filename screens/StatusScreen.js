@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import {statusService} from '../components/StatusService';
+import {registerForPushNotificationsAsync} from '../components/Notifications';
 
 export default function StatusScreen() {
   const [isAvailable, setIsAvailable]     = useState(true);
@@ -13,6 +14,11 @@ export default function StatusScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.iconContainer}>
         <TouchableOpacity onPress={() => statusService.getCurrentStatus(setStatusMessage)}>
+          <Image source ={require('../assets/images/icon.png')}  style={styles.optiresImage}/>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.iconContainer}>
+        <TouchableOpacity onPress={() => registerForPushNotificationsAsync(setStatusMessage)}>
           <Image source ={require('../assets/images/icon.png')}  style={styles.optiresImage}/>
         </TouchableOpacity>
       </View>
