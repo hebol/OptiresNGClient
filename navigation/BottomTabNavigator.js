@@ -51,6 +51,8 @@ function getHeaderTitle(route) {
   switch (routeName) {
     case 'Login':
       return 'Logga in på OptiresNG';
+    case 'Status':
+      return 'Status';
     case 'Navigation':
       return 'Navigation';
   }
