@@ -1,79 +1,32 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import axios from 'axios';
-import config from '../constants/Config';
 import moveToBottom from '../components/moveToBottom'
 
-import { AuthSession } from 'expo';
-const FB_APP_ID = '284161059217962';
+import {loginService} from '../components/LoginService';
 
-function toQueryString(params) {
-  var queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
-  return queryString.length > 0 ? '?' + encodeURI(queryString) : '';
-}
-
-export default function LoginScreen() {
+export default function LoginScreen({navigation}) {
   const [isLoggedIn, setIsLoggedIn] = useState(undefined);
   const [statusMessage, setStatusMessage] = useState('');
+  console.log('Login Screen');
 
-  let loginAsync = async () => {
-    const redirectUrl = AuthSession.getRedirectUrl();
-    let authUrl = 'https://www.facebook.com/v6.0/dialog/oauth' + toQueryString({
-      client_id: FB_APP_ID,
-      redirect_uri: redirectUrl,
-      code: 'code'
-    });
-    console.log(`Redirect URL (add this to Facebook): ${redirectUrl}`);
-    console.log(`AuthURL is:  ${authUrl}`);
-    setStatusMessage('');
-    const result = await AuthSession.startAsync({ authUrl: authUrl});
-
-    if (result.type === 'success') {
-      console.log('Login success!' + JSON.stringify(result,null, 2));
-      setStatusMessage('So now we are logged in to FB!');
-
-      const loginStatus = await axios.get(config.serverUrl + '/auth/facebook/callback2?code=' + result.params.code)
-        .then((response) => {
-          console.log('received from login: ' + JSON.stringify(response));
-          setStatusMessage('Received login data: '+ response);
-          return response;
-        })
-        .then(response => {
-          setStatusMessage('Login done!');
-          return response;
-        })
-        .catch((error) => {
-          setStatusMessage('Error login: '+ error && error.message);
-          console.error('SNAFU' + error);
-        });
-
-    } else {
-      if (result.type === 'cancel') {
-        setStatusMessage('Login cancelled!');
-      } else {
-        if (result.type === 'error') {
-          setStatusMessage('Login error!');
-        } else {
-          setStatusMessage('Unknown result type: ' + result.type);
+  useEffect(() => {
+    checkLogin()
+      .then(status => {
+        setStatusMessage('Login status:' + status);
+        if (status) {
+          navigation.navigate('Status');
         }
-      }
-    }
+      });
+  }, []);
+
+  const checkLogin = () => {
+    return loginService.checkLogin(setIsLoggedIn,setStatusMessage);
+  };
+  const loginAsync = () => {
+    return loginService.loginAsync(setStatusMessage);
   };
 
-  function checkLogin() {
-    setStatusMessage('Checking login');
-    axios.get(config.serverUrl + '/isLoggedIn')
-      .then(serverResponse => {
-        setIsLoggedIn(serverResponse && serverResponse.data.status);
-        setStatusMessage('Login ready');
-      })
-      .catch(error => {
-        console.log('Returned', error);
-        setIsLoggedIn(false);
-        setStatusMessage('Error checking login:' + error && error.message);
-      });
-  }
 
   return (
       <View style={styles.container}>
@@ -96,11 +49,9 @@ export default function LoginScreen() {
           {moveToBottom(
             <View style={styles.loginContainer}>
               <DevelopmentModeNotice/>
+              <Text style={styles.statusText}>{statusMessage}</Text>
             </View>)
           }
-          <View style={styles.statusContainer}>
-            <Text style={styles.statusText}>{statusMessage}</Text>
-          </View>
         </ScrollView>
       </View>
   );
@@ -225,6 +176,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   statusText: {
+    marginBottom: 20,
     fontSize: 14,
     color: '#fff',
   },

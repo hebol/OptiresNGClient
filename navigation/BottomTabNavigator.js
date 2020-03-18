@@ -4,6 +4,7 @@ import TabBarIcon from '../components/TabBarIcon';
 import LoginScreen from '../screens/LoginScreen';
 import NavigationScreen from '../screens/NavigationScreen';
 import StatusScreen from '../screens/StatusScreen';
+import ControlScreen from '../screens/ControlScreen';
 import {StyleSheet} from "react-native";
 
 const BottomTab = createBottomTabNavigator();
@@ -18,10 +19,19 @@ export default function BottomTabNavigator({ navigation, route }) {
   return (
     <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
       <BottomTab.Screen
+        name="Control"
+        component={ControlScreen}
+        options={{
+          title: 'Control',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-lock" />,
+        }}
+      />
+      <BottomTab.Screen
         name="Login"
         component={LoginScreen}
         options={{
           title: 'Login',
+          tabBarVisible: false,
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-lock" />,
         }}
       />
@@ -30,6 +40,7 @@ export default function BottomTabNavigator({ navigation, route }) {
         component={StatusScreen}
         options={{
           title: 'Status',
+          tabBarVisible: false,
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="ios-information-circle" />,
         }}
       />

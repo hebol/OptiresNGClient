@@ -35,7 +35,7 @@
         "NSLocationWhenInUseUsageDescription": "OptiresNG behöver tillgång till din position"
       },
       "bundleIdentifier": "se.optiresng.client",
-      "buildNumber": "0.2.0",
+      "buildNumber": "0.2.1",
       "config": {
         "usesNonExemptEncryption": false
       },

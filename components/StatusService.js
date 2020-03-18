@@ -16,7 +16,7 @@ const StatusService = () => {
           statusFunction && statusFunction('Error sending status:' + error && error.message);
         });
     },
-    getCurrentStatus: async (statusFunction) => {
+    getAvailableStatus: async (statusFunction) => {
       console.log('Will get current status');
       return axios.get(config.serverUrl + '/api/userstatus')
         .then(serverResponse => {
