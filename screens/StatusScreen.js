@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
@@ -6,9 +6,12 @@ import moveToBottom from '../components/moveToBottom'
 
 import {statusService} from '../components/StatusService';
 
+import StatusContext from "../components/StatusContext";
+
 export default function StatusScreen() {
   const [isAvailable, setIsAvailable]     = useState(true);
   const [statusMessage, setStatusMessage] = useState('');
+  const [status, setStatus]               = useContext(StatusContext);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -20,17 +23,23 @@ export default function StatusScreen() {
 
       <OptionButton icon="md-play" label="Tillgänglig" colorOption={styles.greenColorOption} selected={isAvailable}
                     onPress={() => {
-                      statusService.setIsAvailableStatus(true, setStatusMessage);
-                      setStatusMessage('Nu tillgänglig');
-                      setIsAvailable(true);
+                      statusService.setIsAvailableStatus(true, setStatusMessage)
+                        .then(status => {
+                          status && setStatusMessage('Nu tillgänglig');
+                          setStatus('AVAILABLE');
+                          setIsAvailable(status);
+                        });
                     }}
       />
       <OptionButton
         icon="md-square" label="Upptagen" colorOption={styles.redColorOption} selected={!isAvailable}
         onPress={() => {
-          statusService.setIsAvailableStatus(false, setStatusMessage);
-          setStatusMessage('Nu inte tillgänglig');
-          setIsAvailable(false);
+          statusService.setIsAvailableStatus(false, setStatusMessage)
+            .then(status => {
+              !status && setStatusMessage('Nu inte tillgänglig');
+              setIsAvailable(status);
+              setStatus('NOT_AVAILABLE');
+            });
         }}
         isLastOption
       />
@@ -71,8 +80,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   optiresImage: {
-    width: 150,
-    height: 150,
+    width: 200,
+    height: 200,
     resizeMode: 'contain',
     marginTop: 3,
     marginLeft: -10,

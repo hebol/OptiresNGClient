@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
@@ -7,9 +7,11 @@ import {locationService} from '../components/LocationService';
 import config from '../constants/Config';
 import axios from "axios";
 
+import StatusContext from "../components/StatusContext";
 
 export default function NavigationScreen() {
   const [statusMessage, setStatusMessage] = useState('');
+  const [status, setStatus]               = useContext(StatusContext);
 
   const receivedNewLocation = (location) => {
     const value = JSON.stringify(location);
@@ -90,7 +92,7 @@ export default function NavigationScreen() {
       />
 
       <View style={styles.statusContainer}>
-        <Text style={styles.statusText}>{statusMessage}</Text>
+        <Text style={styles.statusText}>{statusMessage}{status}</Text>
       </View>
 
 

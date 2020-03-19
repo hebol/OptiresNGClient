@@ -9,7 +9,7 @@ const StatusService = () => {
       return axios.post(config.serverUrl + '/api/userstatus', {status: status? 'AVAILABLE' : 'NOT_AVAILABLE'})
         .then(serverResponse => {
           statusFunction && statusFunction('Status sent: ' + JSON.stringify(serverResponse.status));
-          return true;
+          return status;
         })
         .catch(error => {
           console.log('Returned', error);
