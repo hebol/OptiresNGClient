@@ -24,7 +24,8 @@ export default function LoginScreen({navigation}) {
     return loginService.checkLogin(setIsLoggedIn,setStatusMessage);
   };
   const loginAsync = () => {
-    return loginService.loginAsync(setStatusMessage);
+    return loginService.loginAsync(setStatusMessage)
+      .then(status => status && navigation && navigation.navigate('Status'))
   };
 
 

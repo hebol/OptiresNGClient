@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import moveToBottom from '../components/moveToBottom'
 
 import {statusService} from '../components/StatusService';
 
@@ -16,32 +17,17 @@ export default function StatusScreen() {
           <Image source ={require('../assets/images/icon.png')}  style={styles.optiresImage}/>
         </TouchableOpacity>
       </View>
-      <View style={styles.iconContainer}>
-        <TouchableOpacity onPress={() => registerForPushNotificationsAsync(setStatusMessage)}>
-          <Image source ={require('../assets/images/icon.png')}  style={styles.optiresImage}/>
-        </TouchableOpacity>
-      </View>
 
-      <OptionButton
-        icon="md-play"
-        label="Tillgänglig"
-        colorOption={styles.greenColorOption}
-        selected={isAvailable}
-        onPress={() => {
-          console.log('Making available!');
-          statusService.setIsAvailableStatus(true, setStatusMessage);
-          setStatusMessage('Nu tillgänglig');
-          setIsAvailable(true);
-        }}
+      <OptionButton icon="md-play" label="Tillgänglig" colorOption={styles.greenColorOption} selected={isAvailable}
+                    onPress={() => {
+                      statusService.setIsAvailableStatus(true, setStatusMessage);
+                      setStatusMessage('Nu tillgänglig');
+                      setIsAvailable(true);
+                    }}
       />
-
       <OptionButton
-        icon="md-square"
-        label="Upptagen"
-        colorOption={styles.redColorOption}
-        selected={!isAvailable}
+        icon="md-square" label="Upptagen" colorOption={styles.redColorOption} selected={!isAvailable}
         onPress={() => {
-          console.log('Making not available!');
           statusService.setIsAvailableStatus(false, setStatusMessage);
           setStatusMessage('Nu inte tillgänglig');
           setIsAvailable(false);
@@ -49,17 +35,19 @@ export default function StatusScreen() {
         isLastOption
       />
 
-      <View style={styles.statusContainer}>
-        <Text style={styles.statusText}>{statusMessage}</Text>
-      </View>
+      { moveToBottom(
+        <View style={styles.statusContainer}>
+          <Text style={styles.statusText}>{statusMessage}</Text>
+        </View>)
+      }
 
     </ScrollView>
   );
 }
 
-function OptionButton({ icon, label, onPress, selected, colorOption, isLastOption }) {
+function OptionButton({ icon, label, onPress, selected, colorOption, isLastOption, hide}) {
   return (
-    <RectButton style={[styles.option, isLastOption && styles.lastOption, selected && styles.selectedOption, colorOption]} onPress={onPress}>
+    <RectButton style={[styles.option, isLastOption && styles.lastOption, selected && styles.selectedOption, hide && styles.hiddenOption, colorOption]} onPress={onPress}>
       <View style={{ flexDirection: 'row' }}>
         <View style={styles.optionIconContainer}>
           <Ionicons name={icon} size={22} color="rgba(255,255,255,0.85)" />
@@ -117,6 +105,9 @@ const styles = StyleSheet.create({
   lastOption: {
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
+  hiddenOption: {
+    display: 'none',
+  },
   selectedOption: {
     paddingVertical: 25,
     borderWidth: 3,
@@ -137,7 +128,8 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   statusText: {
-    fontSize: 20,
-    color: '#000',
+    marginBottom: 40,
+    fontSize: 14,
+    color: '#fff',
   },
 });

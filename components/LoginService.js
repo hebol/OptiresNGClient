@@ -28,11 +28,11 @@ const LoginService = () => {
         console.log('Login success!' + JSON.stringify(result, null, 2));
         setStatusMessage('So now we are logged in to FB!');
 
-        const loginStatus = await axios.get(config.serverUrl + '/auth/facebook/callback2?code=' + result.params.code)
+        return axios.get(config.serverUrl + '/auth/facebook/callback2?code=' + result.params.code)
           .then((response) => {
             console.log('received from login: ' + JSON.stringify(response));
             setStatusMessage('Received login data: ' + response);
-            return response;
+            return response && response.data && response.data.status;
           })
           .then(response => {
             setStatusMessage('Login done!');
@@ -53,6 +53,7 @@ const LoginService = () => {
             setStatusMessage('Unknown result type: ' + result.type);
           }
         }
+        return Promise.resolve(false);
       }
     },
 
