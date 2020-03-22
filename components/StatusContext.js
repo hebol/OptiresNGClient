@@ -1,5 +1,5 @@
-import React from "react";
+import React, {useContext} from "react";
 
-const SystemContext = React.createContext([null, () => {}]);
+const StatusContext = React.createContext([null, () => {}]);
 
-export default SystemContext;
+export default StatusContext;

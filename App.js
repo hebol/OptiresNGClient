@@ -9,8 +9,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
 
+import { AppState } from 'react-native';
 import StatusContext from './components/StatusContext';
-
 
 const Stack = createStackNavigator();
 
@@ -45,6 +45,11 @@ export default function App(props) {
         SplashScreen.hide();
       }
     }
+
+    AppState.addEventListener('change', (newState) => {
+      console.log('New app state', newState);
+    });
+
 
     loadResourcesAndDataAsync();
   }, []);
