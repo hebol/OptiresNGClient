@@ -37,8 +37,13 @@ export const registerForPushNotificationsAsync = async function (setStatusMessag
   // notification (rather than just tapping the app icon to open it),
   // this function will fire on the next tick after the app starts
   // with the notification data.
-  this._notificationSubscription = Notifications.addListener( () => {
-      alert('I received a notification!!');
-    }
-  );
+  if (!this._notificationSubscription) {
+    this._notificationSubscription = Notifications.addListener( (notification) => {
+        console.log('Notification: ', notification);
+        alert('I received a notification!!');
+      }
+    );
+  } else {
+    console.log('Already registered for notifications!');
+  }
 };

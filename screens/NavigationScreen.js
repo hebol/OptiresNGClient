@@ -7,11 +7,8 @@ import {locationService} from '../components/LocationService';
 import config from '../constants/Config';
 import axios from "axios";
 
-import StatusContext from "../components/StatusContext";
-
 export default function NavigationScreen() {
   const [statusMessage, setStatusMessage] = useState('');
-  const [status, setStatus]               = useContext(StatusContext);
 
   const receivedNewLocation = (location) => {
     const value = JSON.stringify(location);
@@ -92,7 +89,7 @@ export default function NavigationScreen() {
       />
 
       <View style={styles.statusContainer}>
-        <Text style={styles.statusText}>{statusMessage}{status}</Text>
+        <Text style={styles.statusText}>{statusMessage}</Text>
       </View>
 
 
