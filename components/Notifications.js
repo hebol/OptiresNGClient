@@ -4,7 +4,7 @@ import * as Permissions from 'expo-permissions';
 import config from '../constants/Config';
 import axios from "axios";
 
-export const registerForPushNotificationsAsync = async function (setStatusMessage) {
+export const registerForPushNotificationsAsync = async function (setStatusMessage, pushHandler) {
   const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
   // only asks if permissions have not already been determined, because
   // iOS won't necessarily prompt the user a second time.
@@ -38,11 +38,7 @@ export const registerForPushNotificationsAsync = async function (setStatusMessag
   // this function will fire on the next tick after the app starts
   // with the notification data.
   if (!this._notificationSubscription) {
-    this._notificationSubscription = Notifications.addListener( (notification) => {
-        console.log('Notification: ', notification);
-        alert('I received a notification!!');
-      }
-    );
+    this._notificationSubscription = Notifications.addListener(pushHandler);
   } else {
     console.log('Already registered for notifications!');
   }

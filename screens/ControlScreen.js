@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import axios from 'axios';
@@ -7,17 +7,63 @@ import moveToBottom from '../components/moveToBottom'
 
 import {registerForPushNotificationsAsync} from '../components/Notifications';
 import {loginService} from '../components/LoginService';
+import { AppState } from 'react-native';
+import StatusContext from "../components/StatusContext";
 
 export default function ControlScreen({navigation}) {
   const [statusMessage, setStatusMessage] = useState('');
+  const [status, setStatus]               = useContext(StatusContext);
 
   useEffect(() => {
     console.log('ControlScreen init');
     navigation.navigate('Login');
     loginService.subscribe(isLoggedIn => {
-      registerForPushNotificationsAsync(setStatusMessage)
+      registerForPushNotificationsAsync(setStatusMessage, (notification) => {
+        console.log('Notification: ', notification);
+        switch (notification.data && notification.data.type) {
+          case 'TEST_MESSAGE':
+            alert('I received a test notification!! '  + JSON.stringify(notification));
+            break;
+          case 'ASSIGNMENT':
+            alert('I received an assignment!! '  + JSON.stringify(notification));
+            break;
+          }
+        }
+      )
     });
+
+    AppState.addEventListener('change', (newState) => {
+      console.log('New app state', newState);
+      if (newState === 'active') {
+        axios.get(config.serverUrl + '/api/assignments/findAssignmentsForCurrentUser')
+          .then(response => {
+            if (response && response.data && response.data.length > 0) {
+              handleAssignmentReceived(response.data[0]);
+            }
+          });
+      }
+    });
+
   }, []);
+
+  function handleAssignmentReceived(assignment) {
+    const newState = {...status};
+    newState.assignment = assignment;
+    console.log('Setting status to', newState);
+    setStatus(newState);
+
+    if (assignment.latestStatus.status === 'QUERIED') {
+      axios.post(config.serverUrl + '/api/assignments/' + assignment._id + '/received')
+        .then(response => {
+          console.log('Confirmed delivery', response.data);
+          if (response.status === 200) {
+            handleAssignmentReceived(response.data)
+          }
+        });
+    }
+    navigation.navigate('Assignment');
+  }
+
 
   return (
     <View style={styles.container}>

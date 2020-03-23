@@ -5,6 +5,7 @@ import LoginScreen from '../screens/LoginScreen';
 import NavigationScreen from '../screens/NavigationScreen';
 import StatusScreen from '../screens/StatusScreen';
 import ControlScreen from '../screens/ControlScreen';
+import AssignmentScreen from '../screens/AssignmentScreen';
 import {StyleSheet} from "react-native";
 
 const BottomTab = createBottomTabNavigator();
@@ -54,6 +55,14 @@ export default function BottomTabNavigator({ navigation, route }) {
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-map" />,
         }}
       />
+      <BottomTab.Screen
+        name="Assignment"
+        component={AssignmentScreen}
+        options={{
+          title: 'Uppdrag',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-map" />,
+        }}
+      />
     </BottomTab.Navigator>
   );
 }
@@ -66,6 +75,8 @@ function getHeaderTitle(route) {
       return 'Logga in på OptiresNG';
     case 'Status':
       return 'Status';
+    case 'Assignment':
+      return 'Uppdrag';
     case 'Navigation':
       return 'Navigation';
   }
