@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import moveToBottom from '../components/moveToBottom'
 
-import {statusService} from '../components/StatusService';
+import {statusService} from '../services/StatusService';
 
 import StatusContext from "../components/StatusContext";
 

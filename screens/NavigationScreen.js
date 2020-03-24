@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
-import {locationService} from '../components/LocationService';
+import {locationService} from '../services/LocationService';
 import config from '../constants/Config';
 import axios from "axios";
 

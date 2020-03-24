@@ -1,12 +1,13 @@
+import React, {useState, useEffect} from 'react';
+import { StyleSheet, View } from 'react-native';
 import React, {useState, useEffect, useContext} from 'react';
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { StyleSheet, View } from 'react-native';
 import axios from 'axios';
 import config from '../constants/Config';
 import moveToBottom from '../components/moveToBottom'
 
-import {registerForPushNotificationsAsync} from '../components/Notifications';
-import {loginService} from '../components/LoginService';
+import {notificationService} from '../services/NotificationService';
+import {loginService} from '../services/LoginService';
 import { AppState } from 'react-native';
 import StatusContext from "../components/StatusContext";
 
@@ -14,11 +15,23 @@ export default function ControlScreen({navigation}) {
   const [statusMessage, setStatusMessage] = useState('');
   const [status, setStatus]               = useContext(StatusContext);
 
+  function checkCurrentState() {
+    return loginService.checkLogin(null, setStatusMessage)
+      .then(status => {
+        if (!status) {
+          navigation.navigate('Login');
+          return false;
+        } else {
+
+        }
+      })
+  }
+
   useEffect(() => {
     console.log('ControlScreen init');
     navigation.navigate('Login');
     loginService.subscribe(isLoggedIn => {
-      registerForPushNotificationsAsync(setStatusMessage, (notification) => {
+      notificationService.registerForPushNotificationsAsync(setStatusMessage, (notification) => {
         console.log('Notification: ', notification);
         switch (notification.data && notification.data.type) {
           case 'TEST_MESSAGE':

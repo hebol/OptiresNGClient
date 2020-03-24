@@ -3,7 +3,7 @@ import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react
 import { ScrollView } from 'react-native-gesture-handler';
 import moveToBottom from '../components/moveToBottom'
 
-import {loginService} from '../components/LoginService';
+import {loginService} from '../services/LoginService';
 
 export default function LoginScreen({navigation}) {
   const [isLoggedIn, setIsLoggedIn] = useState(undefined);
