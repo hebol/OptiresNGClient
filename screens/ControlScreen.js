@@ -1,5 +1,3 @@
-import React, {useState, useEffect} from 'react';
-import { StyleSheet, View } from 'react-native';
 import React, {useState, useEffect, useContext} from 'react';
 import { StyleSheet, View } from 'react-native';
 import axios from 'axios';
