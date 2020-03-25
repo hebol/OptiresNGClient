@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
+import React, {useState, useContext} from 'react';
+import { Platform, StatusBar, StyleSheet, View, Text } from 'react-native';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +10,7 @@ import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
 
 import StatusContext from './components/StatusContext';
+import StatusTextContext from './components/StatusTextContext';
 
 const Stack = createStackNavigator();
 
@@ -20,7 +21,11 @@ export default function App(props) {
   const containerRef = React.useRef();
   const { getInitialState } = useLinking(containerRef);
   const statusHook = useState(null);
-
+  const [statusText, setStatusText] = useState('Ok');
+  const [status, setStatus] = useContext(StatusContext);
+  const statusTextHook = newText => {
+    return setStatusText(newText)
+  };
 
   // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {
@@ -41,10 +46,10 @@ export default function App(props) {
         console.warn(e);
       } finally {
         setLoadingComplete(true);
+        //setStatusText('Starting application');
         SplashScreen.hide();
       }
     }
-
 
     loadResourcesAndDataAsync();
   }, []);
@@ -54,14 +59,17 @@ export default function App(props) {
   } else {
     return (
       <View style={styles.container}>
-        <StatusContext.Provider value = {statusHook}>
-          {Platform.OS === 'ios' && <StatusBar barStyle="default"/>}
-          <NavigationContainer ref={containerRef} initialState={initialNavigationState}>
-            <Stack.Navigator>
-              <Stack.Screen name="Root" component={BottomTabNavigator}/>
-            </Stack.Navigator>
-          </NavigationContainer>
-        </StatusContext.Provider>
+          <StatusTextContext.Provider value={[statusText, statusTextHook]}>
+          <StatusContext.Provider value = {statusHook}>
+            {Platform.OS === 'ios' && <StatusBar barStyle="default"/>}
+            <NavigationContainer ref={containerRef} initialState={initialNavigationState}>
+              <Stack.Navigator>
+                <Stack.Screen name="Root" component={BottomTabNavigator} style={styles.container} />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </StatusContext.Provider>
+          </StatusTextContext.Provider>
+        <Text style={styles.statusText}>{statusText}</Text>
       </View>
     );
   }
@@ -72,4 +80,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0096FF',
   },
+  statusText: {
+    margin: 20,
+    fontSize: 20,
+    color: '#fff',
+    textAlign: 'center',
+  }
 });

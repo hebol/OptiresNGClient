@@ -5,7 +5,7 @@ import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import moveToBottom from '../components/moveToBottom'
 import OptionButton from '../components/OptionButton'
 
-import {statusService} from '../components/StatusService';
+import {statusService} from '../services/StatusService';
 import StatusContext from "../components/StatusContext";
 
 export default function AssignmentScreen() {
@@ -25,7 +25,7 @@ export default function AssignmentScreen() {
         <Text style={styles.assignmentText}>Beskrivning:{status.assignment.beskrivning}</Text>
         <Text style={styles.assignmentStatus}>Status:{status.assignment.currentStatus}</Text>
       </View>
-      {(status.assignment.latestStatus.status === 'RECEIVED'?
+      {(status.assignment && status.assignment.latestStatus.status === 'RECEIVED'?
           <Text style={styles.assignmentText}>Skall du åka</Text>
           :
           <Text style={styles.assignmentText}>Annan status</Text>

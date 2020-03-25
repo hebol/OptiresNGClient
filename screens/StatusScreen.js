@@ -7,11 +7,13 @@ import moveToBottom from '../components/moveToBottom'
 import {statusService} from '../services/StatusService';
 
 import StatusContext from "../components/StatusContext";
+import StatusTextContext from "../components/StatusTextContext";
 
 export default function StatusScreen() {
   const [isAvailable, setIsAvailable]     = useState(true);
   const [statusMessage, setStatusMessage] = useState('');
   const [status, setStatus]               = useContext(StatusContext);
+  const [statusText, setStatusText]       = useContext(StatusTextContext);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -27,6 +29,7 @@ export default function StatusScreen() {
                         .then(status => {
                           status && setStatusMessage('Nu tillgänglig');
                           setStatus('AVAILABLE');
+                          setStatusText('AVAILABLE');
                           setIsAvailable(status);
                         });
                     }}
@@ -39,6 +42,7 @@ export default function StatusScreen() {
               !status && setStatusMessage('Nu inte tillgänglig');
               setIsAvailable(status);
               setStatus('NOT_AVAILABLE');
+              setStatusText('NOT_AVAILABLE');
             });
         }}
         isLastOption

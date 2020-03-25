@@ -10,24 +10,6 @@ import axios from "axios";
 export default function NavigationScreen() {
   const [statusMessage, setStatusMessage] = useState('');
 
-  const receivedNewLocation = (location) => {
-    const value = JSON.stringify(location);
-    console.log('Will set status message', value);
-    setStatusMessage('Received location' + value);
-    sendPosition(location && location.coords);
-  };
-
-  function sendPosition(location) {
-    setStatusMessage('Sending position');
-    axios.post(config.serverUrl + '/api/userposition', location)
-      .then(serverResponse => {
-        setStatusMessage('Position sent: ' + JSON.stringify(location));
-      })
-      .catch(error => {
-        console.log('Returned', error);
-        setStatusMessage('Error sending position:' + error && error.message);
-      });
-  }
   const getNumberOfPositions = () => {
     return axios.get(config.serverUrl + '/api/userposition/count');
   };

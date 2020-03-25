@@ -58,13 +58,15 @@ const LoginService = () => {
     },
 
     checkLogin: (setIsLoggedIn, setStatusMessage) => {
-      setStatusMessage('Checking login');
+      const message = 'Checking login on ' + config.serverUrl;
+      console.log(message);
+      setStatusMessage(message);
       return axios.get(config.serverUrl + '/isLoggedIn')
         .then(serverResponse => {
           const loginStatus = serverResponse && serverResponse.data.status;
           setIsLoggedIn(loginStatus);
           services.setLoginStatus(loginStatus);
-          console.log("Response", loginStatus);
+          console.log("isLoggedIn Response =>", loginStatus);
           setStatusMessage('Login ready');
           return loginStatus;
         })

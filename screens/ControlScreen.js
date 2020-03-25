@@ -5,25 +5,23 @@ import config from '../constants/Config';
 import moveToBottom from '../components/moveToBottom'
 
 import {notificationService} from '../services/NotificationService';
-import {loginService} from '../services/LoginService';
-import { AppState } from 'react-native';
-import StatusContext from "../components/StatusContext";
+import {loginService}        from '../services/LoginService';
+import {locationService}     from '../services/LocationService';
+import { AppState }          from 'react-native';
+import StatusContext         from '../components/StatusContext';
+import {statusService} from "../services/StatusService";
 
 export default function ControlScreen({navigation}) {
   const [statusMessage, setStatusMessage] = useState('');
   const [status, setStatus]               = useContext(StatusContext);
 
-  function checkCurrentState() {
-    return loginService.checkLogin(null, setStatusMessage)
-      .then(status => {
-        if (!status) {
-          navigation.navigate('Login');
-          return false;
-        } else {
-
-        }
-      })
-  }
+  useEffect(() => {
+    if (status !== 'NOT_AVAILABLE') {
+      locationService.startLocationTracking();
+    } else {
+      locationService.stopLocationTracking();
+    }
+  }, [status]);
 
   useEffect(() => {
     console.log('ControlScreen init');
@@ -40,7 +38,10 @@ export default function ControlScreen({navigation}) {
             break;
           }
         }
-      )
+      );
+      statusService.subscribe(aStatus => {
+        setStatus(aStatus);
+      });
     });
 
     AppState.addEventListener('change', (newState) => {
@@ -63,7 +64,7 @@ export default function ControlScreen({navigation}) {
     console.log('Setting status to', newState);
     setStatus(newState);
 
-    if (assignment.latestStatus.status === 'QUERIED') {
+    if (assignment && assignment.latestStatus && assignment.latestStatus.status === 'QUERIED') {
       axios.post(config.serverUrl + '/api/assignments/' + assignment._id + '/received')
         .then(response => {
           console.log('Confirmed delivery', response.data);

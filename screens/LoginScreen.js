@@ -8,7 +8,7 @@ import {loginService} from '../services/LoginService';
 export default function LoginScreen({navigation}) {
   const [isLoggedIn, setIsLoggedIn] = useState(undefined);
   const [statusMessage, setStatusMessage] = useState('');
-  console.log('Login Screen');
+//  console.log('Login Screen');
 
   useEffect(() => {
     checkLogin()

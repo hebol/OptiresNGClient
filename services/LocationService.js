@@ -2,11 +2,26 @@ import * as TaskManager from 'expo-task-manager';
 
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
+import axios from "axios";
+import config from "../constants/Config";
+
+
+const receivedNewLocation = (location) => {
+  const value = JSON.stringify(location);
+  return sendPosition(location && location.coords);
+};
+
+function sendPosition(location) {
+  return axios.post(config.serverUrl + '/api/userposition', location)
+  .catch(error => {
+    console.log('Returned', error);
+  });
+}
 
 const LocationService = () => {
   let subscribers = {};
 
-  return {
+  const returnValue = {
     isAllowedLocationTracking: () => {
       return Location.hasServicesEnabledAsync()
         .then ( response => {
@@ -30,6 +45,7 @@ const LocationService = () => {
       delete subscribers[sub];
     },
     startLocationTracking: async () => {
+      returnValue.subscribe(receivedNewLocation);
       console.log('Will start location tracking!');
       let { status } = await Permissions.askAsync(Permissions.LOCATION);
       if (status !== 'granted') {
@@ -42,16 +58,17 @@ const LocationService = () => {
         distanceInterval: 1000
       })
       .then(response => {
-        console.log('received response from service', response);
+        console.log('Received response from location service start', response);
       })
       .catch(error => {
-        console.log('received error from service', error);
+        console.log('Received error from service', error);
       });
     },
     stopLocationTracking: async () => {
+      returnValue.unsubscribe(receivedNewLocation);
       Location.stopLocationUpdatesAsync('RECEIVE_LOCATION_TASK')
         .then(response => {
-          console.log('received response from service', response);
+          console.log('received response from location service STOP', response);
         })
         .catch(error => {
           console.log('received error from service', error);
@@ -73,7 +90,8 @@ const LocationService = () => {
         return Promise.reject('Not allowed location');
       }
     }
-  }
+  };
+  return returnValue;
 };
 
 export const locationService = LocationService();
