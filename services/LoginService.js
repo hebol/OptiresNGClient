@@ -12,7 +12,7 @@ const LoginService = () => {
   let subscribers = {};
 
   const services = {
-    loginAsync: async (setStatusMessage) => {
+    loginAsync: async (setStatus) => {
       const redirectUrl = AuthSession.getRedirectUrl();
       let authUrl = 'https://www.facebook.com/v6.0/dialog/oauth' + toQueryString({
         client_id: FB_APP_ID,
@@ -21,67 +21,76 @@ const LoginService = () => {
       });
       console.log(`Redirect URL (add this to Facebook): ${redirectUrl}`);
       console.log(`AuthURL is:  ${authUrl}`);
-      setStatusMessage('');
-      const result = await AuthSession.startAsync({authUrl: authUrl});
+      setStatus('');
+      const result = await AuthSession.startAsync({authUrl: authUrl})
+        .catch(error => {
+          log.info('Login failed', error && error.message);
+        });
 
       if (result.type === 'success') {
         console.log('Login success!' + JSON.stringify(result, null, 2));
-        setStatusMessage('So now we are logged in to FB!');
+        setStatus('So now we are logged in to FB!');
 
         return axios.get(config.serverUrl + '/auth/facebook/callback2?code=' + result.params.code)
           .then((response) => {
             console.log('received from login: ' + JSON.stringify(response));
-            setStatusMessage('Received login data: ' + response);
+            setStatus('Received login data: ' + response);
             return response && response.data && response.data.status;
           })
           .then(response => {
-            setStatusMessage('Login done!');
+            setStatus('Login done!');
+            services.setLoginStatus(true);
             return response;
           })
           .catch((error) => {
-            setStatusMessage('Error login: ' + error && error.message);
-            console.error('SNAFU' + error);
+            const aMessage = 'Error login: ' + error && error.message;
+            setStatus(aMessage);
+            services.setLoginStatus(false, aMessage);
+            console.log('SNAFU', aMessage);
           });
 
       } else {
         if (result.type === 'cancel') {
           setStatusMessage('Login cancelled!');
+          services.setLoginStatus(false);
         } else {
           if (result.type === 'error') {
-            setStatusMessage('Login error!');
+            setStatus('Login error!');
+            services.setLoginStatus(false, result.message);
           } else {
-            setStatusMessage('Unknown result type: ' + result.type);
+            setStatus('Unknown result type: ' + result.type);
+            services.setLoginStatus(false, result.message);
           }
         }
         return Promise.resolve(false);
       }
     },
 
-    checkLogin: (setIsLoggedIn, setStatusMessage) => {
+    checkLogin: (setStatus) => {
       const message = 'Checking login on ' + config.serverUrl;
       console.log(message);
-      setStatusMessage(message);
+      setStatus(message);
       return axios.get(config.serverUrl + '/isLoggedIn')
         .then(serverResponse => {
           const loginStatus = serverResponse && serverResponse.data.status;
-          setIsLoggedIn(loginStatus);
           services.setLoginStatus(loginStatus);
           console.log("isLoggedIn Response =>", loginStatus);
-          setStatusMessage('Login ready');
+          setStatus(loginStatus ? 'Login ready' : 'Not logged in!');
           return loginStatus;
         })
         .catch(error => {
           console.log('Returned', error);
-          setIsLoggedIn(false);
-          setStatusMessage('Error checking login:' + error && error.message);
+          setStatus('Error checking login:' + error && error.message);
+          services.setLoginStatus(false, error && error.message);
+          return false;
         });
     },
     subscribe: (sub) => {
       subscribers[sub] = sub;
       console.log('Has added subscriber!');
     },
-    setLoginStatus: (status) => {
-      Object.values(subscribers).forEach((sub) => sub(status))
+    setLoginStatus: (status, error) => {
+      Object.values(subscribers).forEach((sub) => sub(status, error))
     },
     unsubscribe: (sub) => {
       delete subscribers[sub];

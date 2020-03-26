@@ -1,5 +1,5 @@
 import React from "react";
 
-const StatusTextContext = React.createContext([null, () => {}]);
+const SystemStatusContext = React.createContext([null, () => {}]);
 
-export default StatusTextContext;
+export default SystemStatusContext;

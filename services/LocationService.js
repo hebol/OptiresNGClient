@@ -14,7 +14,7 @@ const receivedNewLocation = (location) => {
 function sendPosition(location) {
   return axios.post(config.serverUrl + '/api/userposition', location)
   .catch(error => {
-    console.log('Returned', error);
+    console.log('Location post returned error', error);
   });
 }
 

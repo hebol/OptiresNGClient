@@ -10,50 +10,38 @@ import StatusContext from "../components/StatusContext";
 import StatusTextContext from "../components/StatusTextContext";
 
 export default function StatusScreen() {
-  const [isAvailable, setIsAvailable]     = useState(true);
-  const [statusMessage, setStatusMessage] = useState('');
   const [status, setStatus]               = useContext(StatusContext);
   const [statusText, setStatusText]       = useContext(StatusTextContext);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.iconContainer}>
-        <TouchableOpacity onPress={() => statusService.getAvailableStatus(setStatusMessage)}>
+        <TouchableOpacity onPress={() => statusService.getAvailableStatus(setStatusText)}>
           <Image source ={require('../assets/images/icon.png')}  style={styles.optiresImage}/>
         </TouchableOpacity>
       </View>
 
-      <OptionButton icon="md-play" label="Tillgänglig" colorOption={styles.greenColorOption} selected={isAvailable}
+      <OptionButton icon="md-play" label="Tillgänglig" colorOption={styles.greenColorOption} selected={(status==='AVAILABLE')}
                     onPress={() => {
-                      statusService.setIsAvailableStatus(true, setStatusMessage)
+                      statusService.setIsAvailableStatus(true, setStatusText)
                         .then(status => {
-                          status && setStatusMessage('Nu tillgänglig');
+                          status && setStatusText('Tillgänglig');
                           setStatus('AVAILABLE');
-                          setStatusText('AVAILABLE');
-                          setIsAvailable(status);
                         });
                     }}
       />
       <OptionButton
-        icon="md-square" label="Upptagen" colorOption={styles.redColorOption} selected={!isAvailable}
+        icon="md-square" label="Upptagen" colorOption={styles.redColorOption} selected={(status!=='AVAILABLE')}
         onPress={() => {
-          statusService.setIsAvailableStatus(false, setStatusMessage)
+          statusService.setIsAvailableStatus(false, setStatusText)
             .then(status => {
-              !status && setStatusMessage('Nu inte tillgänglig');
-              setIsAvailable(status);
+              !status && setStatusText('Inte tillgänglig');
               setStatus('NOT_AVAILABLE');
-              setStatusText('NOT_AVAILABLE');
+              setStatusText('Inte tillgänglig');
             });
         }}
         isLastOption
       />
-
-      { moveToBottom(
-        <View style={styles.statusContainer}>
-          <Text style={styles.statusText}>{statusMessage}</Text>
-        </View>)
-      }
-
     </ScrollView>
   );
 }

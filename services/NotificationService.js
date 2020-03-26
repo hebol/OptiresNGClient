@@ -33,7 +33,7 @@ const NotificationService = () => {
           );
         })
         .catch(error => {
-          console.log('Returned', error);
+          console.log('Post token Returned', error);
           setStatusMessage && setStatusMessage('Error sending position:' + error && error.message);
           this._notificationSubscription = null;
         });

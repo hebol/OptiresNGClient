@@ -9,11 +9,13 @@ import {loginService}        from '../services/LoginService';
 import {locationService}     from '../services/LocationService';
 import { AppState }          from 'react-native';
 import StatusContext         from '../components/StatusContext';
-import {statusService} from "../services/StatusService";
+import SystemStatusContext   from '../components/SystemStatusContext';
+import {statusService}       from '../services/StatusService';
 
 export default function ControlScreen({navigation}) {
   const [statusMessage, setStatusMessage] = useState('');
   const [status, setStatus]               = useContext(StatusContext);
+  const [systemStatus, setSystemStatus]   = useContext(SystemStatusContext);
 
   useEffect(() => {
     if (status !== 'NOT_AVAILABLE') {
@@ -26,7 +28,9 @@ export default function ControlScreen({navigation}) {
   useEffect(() => {
     console.log('ControlScreen init');
     navigation.navigate('Login');
-    loginService.subscribe(isLoggedIn => {
+
+    loginService.subscribe((isLoggedIn, error) => {
+      setSystemStatus( {color: isLoggedIn ? 'green' : (error? 'red' : 'grey')});
       notificationService.registerForPushNotificationsAsync(setStatusMessage, (notification) => {
         console.log('Notification: ', notification);
         switch (notification.data && notification.data.type) {
@@ -52,10 +56,12 @@ export default function ControlScreen({navigation}) {
             if (response && response.data && response.data.length > 0) {
               handleAssignmentReceived(response.data[0]);
             }
+          })
+          .catch(error => {
+            console.log('Error finding assignments', error && error.message);
           });
       }
     });
-
   }, []);
 
   function handleAssignmentReceived(assignment) {
@@ -71,11 +77,14 @@ export default function ControlScreen({navigation}) {
           if (response.status === 200) {
             handleAssignmentReceived(response.data)
           }
+        })
+        .catch(error => {
+          console.log('Error confirming assignments', error && error.message);
         });
+
     }
     navigation.navigate('Assignment');
   }
-
 
   return (
     <View style={styles.container}>

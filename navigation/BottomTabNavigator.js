@@ -9,7 +9,7 @@ import AssignmentScreen from '../screens/AssignmentScreen';
 import {StyleSheet} from 'react-native';
 
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = 'Home';
+const INITIAL_ROUTE_NAME = 'Control';
 import StatusContext from "../components/StatusContext";
 
 export default function BottomTabNavigator({ navigation, route }) {

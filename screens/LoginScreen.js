@@ -1,19 +1,17 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import moveToBottom from '../components/moveToBottom'
 
 import {loginService} from '../services/LoginService';
+import StatusTextContext from "../components/StatusTextContext";
 
 export default function LoginScreen({navigation}) {
-  const [isLoggedIn, setIsLoggedIn] = useState(undefined);
-  const [statusMessage, setStatusMessage] = useState('');
-//  console.log('Login Screen');
+  const [status, setStatus] = useContext(StatusTextContext);
 
   useEffect(() => {
     checkLogin()
       .then(status => {
-        setStatusMessage('Login status:' + status);
         if (status) {
           navigation.navigate('Status');
         }
@@ -21,23 +19,19 @@ export default function LoginScreen({navigation}) {
   }, []);
 
   const checkLogin = () => {
-    return loginService.checkLogin(setIsLoggedIn,setStatusMessage);
+    return loginService.checkLogin(setStatus);
   };
   const loginAsync = () => {
-    return loginService.loginAsync(setStatusMessage)
+    return loginService.loginAsync(setStatus)
       .then(status => status && navigation && navigation.navigate('Status'))
   };
-
 
   return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
           <View style={styles.welcomeContainer}>
             <TouchableOpacity onPress={checkLogin}>
-            <Image source ={require('../assets/images/icon.png')}  style={styles.loginImage}/>
-            {(isLoggedIn === true ? <Text>Is Logged in! </Text> :
-              (isLoggedIn === undefined ? <Text>Looking for status! </Text> :
-                <Text>Is NOT Logged in!</Text>))}
+              <Image source ={require('../assets/images/icon.png')}  style={styles.loginImage}/>
             </TouchableOpacity>
           </View>
 
@@ -50,7 +44,6 @@ export default function LoginScreen({navigation}) {
           {moveToBottom(
             <View style={styles.loginContainer}>
               <DevelopmentModeNotice/>
-              <Text style={styles.statusText}>{statusMessage}</Text>
             </View>)
           }
         </ScrollView>
