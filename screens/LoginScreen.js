@@ -19,11 +19,10 @@ export default function LoginScreen({navigation}) {
   }, []);
 
   const checkLogin = () => {
-    return loginService.checkLogin(setStatus);
+    return loginService.checkLogin();
   };
   const loginAsync = () => {
-    return loginService.loginAsync(setStatus)
-      .then(status => status && navigation && navigation.navigate('Status'))
+    return loginService.loginAsync();
   };
 
   return (

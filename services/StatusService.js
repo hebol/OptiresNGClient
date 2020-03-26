@@ -11,10 +11,9 @@ const StatusService = () => {
     },
 
     transmitStatus: (status) => {
-      const aStatus = {...status};
+      const aStatus = status;
       Object.values(subscribers).forEach((sub) => sub(aStatus));
     },
-
 
     unsubscribe: (sub) => {
       console.log('Has removed status subscriber!');
@@ -35,12 +34,12 @@ const StatusService = () => {
         });
     },
     getAvailableStatus: async (statusFunction) => {
-      console.log('Will get current status');
+      console.log('Will fetch current status');
       return axios.get(config.serverUrl + '/api/userstatus')
         .then(serverResponse => {
           statusFunction && statusFunction('Received status: ' + JSON.stringify(serverResponse.data));
           console.log('Received status', serverResponse.data);
-          returnValue.transmitStatus(serverResponse.data.status);
+          returnValue.transmitStatus(serverResponse.data);
           return serverResponse;
         })
         .catch(error => {

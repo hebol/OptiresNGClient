@@ -18,20 +18,10 @@ export default function ControlScreen({navigation}) {
   const [systemStatus, setSystemStatus]   = useContext(SystemStatusContext);
 
   useEffect(() => {
-    if (status !== 'NOT_AVAILABLE') {
-      locationService.startLocationTracking();
-    } else {
-      locationService.stopLocationTracking();
-    }
-  }, [status]);
-
-  useEffect(() => {
     console.log('ControlScreen init');
     navigation.navigate('Login');
 
-    loginService.subscribe((isLoggedIn, error) => {
-      setSystemStatus( {color: isLoggedIn ? 'green' : (error? 'red' : 'grey')});
-      notificationService.registerForPushNotificationsAsync(setStatusMessage, (notification) => {
+    notificationService.registerForPushNotificationsAsync(setStatusMessage, (notification) => {
         console.log('Notification: ', notification);
         switch (notification.data && notification.data.type) {
           case 'TEST_MESSAGE':
@@ -40,12 +30,36 @@ export default function ControlScreen({navigation}) {
           case 'ASSIGNMENT':
             alert('I received an assignment!! '  + JSON.stringify(notification));
             break;
-          }
         }
-      );
-      statusService.subscribe(aStatus => {
-        setStatus(aStatus);
-      });
+      }
+    );
+    statusService.subscribe(aStatus => {
+      console.log('Control screen Setting status to', aStatus);
+      setStatus(aStatus);
+      switch (aStatus) {
+        case 'AVAILABLE':
+          locationService.startLocationTracking();
+          navigation.navigate('Status');
+          break;
+        case 'NOT_AVAILABLE':
+          locationService.stopLocationTracking();
+          navigation.navigate('Status');
+          break;
+        case 'ON_ASSIGNMENT':
+          locationService.startLocationTracking();
+          navigation.navigate('Navigation');
+          break;
+        default:
+        case 'UNKNOWN':
+        case undefined:
+          locationService.stopLocationTracking();
+          break;
+      }
+    });
+
+    loginService.subscribe((isLoggedIn, error) => {
+      setSystemStatus( {color: isLoggedIn ? 'green' : (error? 'red' : 'grey')});
+      isLoggedIn && statusService.getAvailableStatus(setStatus);
     });
 
     AppState.addEventListener('change', (newState) => {

@@ -13,6 +13,8 @@ export default function StatusScreen() {
   const [status, setStatus]               = useContext(StatusContext);
   const [statusText, setStatusText]       = useContext(StatusTextContext);
 
+  console.log('Current status is', status);
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.iconContainer}>

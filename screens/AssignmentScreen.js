@@ -1,17 +1,33 @@
 import React, {useState, useContext} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import moveToBottom from '../components/moveToBottom'
-import OptionButton from '../components/OptionButton'
 
 import {statusService} from '../services/StatusService';
 import StatusContext from "../components/StatusContext";
 
+/*
+
+      <View style={styles.assignmentContainer}>
+        (status && status.assignment ?
+        <Text style={styles.assignmentTitle}>Titel:{status.assignment.titel}</Text>
+        <Text style={styles.assignmentText}>Beskrivning:{status.assignment.beskrivning}</Text>
+        <Text style={styles.assignmentStatus}>Status:{status.assignment.currentStatus}</Text>
+        : <Text></Text>)
+      </View>
+      <View>
+      {(status.assignment.latestStatus && status.assignment.latestStatus.status === 'RECEIVED'?
+          <Text style={styles.assignmentText}>Skall du åka</Text> :
+          <Text style={styles.assignmentText}>Annan status</Text>
+      )}
+      </View>
+
+
+ */
+
 export default function AssignmentScreen() {
   const [statusMessage, setStatusMessage] = useState('');
   const [status, setStatus]               = useContext(StatusContext);
-  const [assignment, setAssignment]       = useState(status && status.assignment || {titel:'Melon'});
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -20,17 +36,6 @@ export default function AssignmentScreen() {
           <Image source ={require('../assets/images/icon.png')}  style={styles.optiresImage}/>
         </TouchableOpacity>
       </View>
-      <View style={styles.assignmentContainer}>
-        <Text style={styles.assignmentTitle}>Titel:{status.assignment.titel}</Text>
-        <Text style={styles.assignmentText}>Beskrivning:{status.assignment.beskrivning}</Text>
-        <Text style={styles.assignmentStatus}>Status:{status.assignment.currentStatus}</Text>
-      </View>
-      {(status.assignment && status.assignment.latestStatus.status === 'RECEIVED'?
-          <Text style={styles.assignmentText}>Skall du åka</Text>
-          :
-          <Text style={styles.assignmentText}>Annan status</Text>
-      )}
-
       { moveToBottom(
         <View style={styles.statusContainer}>
           <Text style={styles.statusText}>{statusMessage}</Text>
