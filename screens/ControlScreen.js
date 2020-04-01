@@ -49,9 +49,11 @@ export default function ControlScreen({navigation}) {
           locationService.startLocationTracking();
           navigation.navigate('Navigation');
           break;
+
         default:
         case 'UNKNOWN':
         case undefined:
+          console.log('Handling status', aStatus, 'as default');
           locationService.stopLocationTracking();
           break;
       }

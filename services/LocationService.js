@@ -65,6 +65,7 @@ const LocationService = () => {
       });
     },
     stopLocationTracking: async () => {
+      console.log('Will stop location tracking!');
       returnValue.unsubscribe(receivedNewLocation);
       Location.stopLocationUpdatesAsync('RECEIVE_LOCATION_TASK')
         .then(response => {

@@ -22,7 +22,11 @@ export default function LoginScreen({navigation}) {
     return loginService.checkLogin();
   };
   const loginAsync = () => {
-    return loginService.loginAsync();
+    return loginService.loginAsync()
+    .then( status => {
+      status && navigation.navigate('Status');
+      return status;
+    });
   };
 
   return (

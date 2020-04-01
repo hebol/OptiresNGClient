@@ -24,8 +24,9 @@ const StatusService = () => {
       statusFunction('Setting status');
       return axios.post(config.serverUrl + '/api/userstatus', {status: status? 'AVAILABLE' : 'NOT_AVAILABLE'})
         .then(serverResponse => {
-          statusFunction && statusFunction('Status sent: ' + JSON.stringify(serverResponse.status));
-          returnValue.transmitStatus(serverResponse.status);
+          statusFunction && statusFunction('Status sent: ' + JSON.stringify(serverResponse.data.status));
+          console.log('Received status from setService \'' + serverResponse.data.status + '\'');
+          returnValue.transmitStatus(serverResponse.data.status);
           return status;
         })
         .catch(error => {
@@ -38,7 +39,7 @@ const StatusService = () => {
       return axios.get(config.serverUrl + '/api/userstatus')
         .then(serverResponse => {
           statusFunction && statusFunction('Received status: ' + JSON.stringify(serverResponse.data));
-          console.log('Received status', serverResponse.data);
+          console.log('Received status from service', serverResponse.data);
           returnValue.transmitStatus(serverResponse.data);
           return serverResponse;
         })
