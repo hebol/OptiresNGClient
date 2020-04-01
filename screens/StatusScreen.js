@@ -33,7 +33,7 @@ export default function StatusScreen() {
                     }}
       />
       <OptionButton
-        icon="md-square" label="Upptagen" colorOption={styles.redColorOption} selected={(status!=='AVAILABLE')}
+        icon="md-square" label="Upptagen" colorOption={styles.redColorOption} selected={(status==='NOT_AVAILABLE')}
         onPress={() => {
           statusService.setIsAvailableStatus(false, setStatusText)
             .then(status => {

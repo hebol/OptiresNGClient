@@ -8,12 +8,14 @@ import {notificationService} from '../services/NotificationService';
 import {loginService}        from '../services/LoginService';
 import {locationService}     from '../services/LocationService';
 import { AppState }          from 'react-native';
+import AssignmentContext     from '../components/AssignmentContext';
 import StatusContext         from '../components/StatusContext';
 import SystemStatusContext   from '../components/SystemStatusContext';
 import {statusService}       from '../services/StatusService';
 
 export default function ControlScreen({navigation}) {
   const [statusMessage, setStatusMessage] = useState('');
+  const [assignment, setAssignment]       = useContext(AssignmentContext);
   const [status, setStatus]               = useContext(StatusContext);
   const [systemStatus, setSystemStatus]   = useContext(SystemStatusContext);
 
@@ -47,7 +49,7 @@ export default function ControlScreen({navigation}) {
           break;
         case 'ON_ASSIGNMENT':
           locationService.startLocationTracking();
-          navigation.navigate('Navigation');
+          navigation.navigate('Assignment');
           break;
 
         default:
@@ -80,25 +82,8 @@ export default function ControlScreen({navigation}) {
     });
   }, []);
 
-  function handleAssignmentReceived(assignment) {
-    const newState = {...status};
-    newState.assignment = assignment;
-    console.log('Setting status to', newState);
-    setStatus(newState);
-
-    if (assignment && assignment.latestStatus && assignment.latestStatus.status === 'QUERIED') {
-      axios.post(config.serverUrl + '/api/assignments/' + assignment._id + '/received')
-        .then(response => {
-          console.log('Confirmed delivery', response.data);
-          if (response.status === 200) {
-            handleAssignmentReceived(response.data)
-          }
-        })
-        .catch(error => {
-          console.log('Error confirming assignments', error && error.message);
-        });
-
-    }
+  function handleAssignmentReceived(anAssignment) {
+    setAssignment(anAssignment);
     navigation.navigate('Assignment');
   }
 

@@ -9,6 +9,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
 
+import AssignmentContext from './components/AssignmentContext';
 import StatusContext from './components/StatusContext';
 import SystemStatusContext from './components/SystemStatusContext';
 import StatusTextContext from './components/StatusTextContext';
@@ -21,6 +22,11 @@ export default function App(props) {
   const containerRef = React.useRef();
   const { getInitialState } = useLinking(containerRef);
   const statusHook = useState(null);
+
+  const [assignment, setAssignment] = useState(null);
+  const assignmentHook = anAssignment => {
+    return setAssignment(anAssignment)
+  };
 
   const [statusText, setStatusText] = useState('...');
   const statusTextHook = newText => {
@@ -63,18 +69,20 @@ export default function App(props) {
   } else {
     return (
       <View style={styles.container}>
-        <SystemStatusContext.Provider value={[systemStatus, systemStatusHook]}>
-          <StatusTextContext.Provider value={[statusText, statusTextHook]}>
-            <StatusContext.Provider value = {statusHook}>
-                {Platform.OS === 'ios' && <StatusBar barStyle="default"/>}
-              <NavigationContainer style={styles.navigationContainer} ref={containerRef} initialState={initialNavigationState}>
-                <Stack.Navigator>
-                  <Stack.Screen name="Root" component={BottomTabNavigator} style={styles.container} />
-                </Stack.Navigator>
-              </NavigationContainer>
-            </StatusContext.Provider>
-          </StatusTextContext.Provider>
-        </SystemStatusContext.Provider>
+        <AssignmentContext.Provider value={[assignment, assignmentHook]}>
+          <SystemStatusContext.Provider value={[systemStatus, systemStatusHook]}>
+            <StatusTextContext.Provider value={[statusText, statusTextHook]}>
+              <StatusContext.Provider value = {statusHook}>
+                  {Platform.OS === 'ios' && <StatusBar barStyle="default"/>}
+                <NavigationContainer style={styles.navigationContainer} ref={containerRef} initialState={initialNavigationState}>
+                  <Stack.Navigator>
+                    <Stack.Screen name="Root" component={BottomTabNavigator} style={styles.container} />
+                  </Stack.Navigator>
+                </NavigationContainer>
+              </StatusContext.Provider>
+            </StatusTextContext.Provider>
+          </SystemStatusContext.Provider>
+        </AssignmentContext.Provider>
         <View style={styles.statusView}>
           <View style={[styles.statusCircle, {backgroundColor: (systemStatus.color)}]}/>
           <Text style={styles.statusText}>{statusText}</Text>

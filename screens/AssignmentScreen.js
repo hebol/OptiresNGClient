@@ -1,17 +1,18 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import moveToBottom from '../components/moveToBottom'
 
 import {statusService} from '../services/StatusService';
 import StatusContext from "../components/StatusContext";
+import AssignmentContext     from '../components/AssignmentContext';
+import axios from "axios";
+import config from "../constants/Config";
 
 /*
 
       <View style={styles.assignmentContainer}>
         (status && status.assignment ?
-        <Text style={styles.assignmentTitle}>Titel:{status.assignment.titel}</Text>
-        <Text style={styles.assignmentText}>Beskrivning:{status.assignment.beskrivning}</Text>
         <Text style={styles.assignmentStatus}>Status:{status.assignment.currentStatus}</Text>
         : <Text></Text>)
       </View>
@@ -27,7 +28,19 @@ import StatusContext from "../components/StatusContext";
 
 export default function AssignmentScreen() {
   const [statusMessage, setStatusMessage] = useState('');
-  const [status, setStatus]               = useContext(StatusContext);
+  const [assignment, setAssignment]       = useContext(AssignmentContext);
+
+  useEffect( () => {
+    if (assignment && assignment.latestStatus && assignment.latestStatus.status === 'QUERIED') {
+      axios.post(config.serverUrl + '/api/assignments/' + assignment._id + '/received')
+        .then(response => {
+          console.log('Confirmed delivery', response.data);
+        })
+        .catch(error => {
+          console.log('Error confirming assignments', error && error.message);
+        });
+    }
+  }, [assignment]);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -36,11 +49,16 @@ export default function AssignmentScreen() {
           <Image source ={require('../assets/images/icon.png')}  style={styles.optiresImage}/>
         </TouchableOpacity>
       </View>
-      { moveToBottom(
-        <View style={styles.statusContainer}>
-          <Text style={styles.statusText}>{statusMessage}</Text>
-        </View>)
+      <View style={styles.iconContainer}>
+      {assignment?
+        <View>
+          <Text style={styles.assignmentTitle}>{assignment.titel}</Text>
+          <Text style={styles.assignmentText}>{assignment.beskrivning}</Text>
+          <Text>We have an assignment {assignment.currentStatus}</Text>
+        </View>
+        : <Text>No assignment</Text>
       }
+      </View>
 
     </ScrollView>
   );
