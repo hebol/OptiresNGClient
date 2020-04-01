@@ -69,15 +69,7 @@ export default function ControlScreen({navigation}) {
     AppState.addEventListener('change', (newState) => {
       console.log('New app state', newState);
       if (newState === 'active') {
-        axios.get(config.serverUrl + '/api/assignments/findAssignmentsForCurrentUser')
-          .then(response => {
-            if (response && response.data && response.data.length > 0) {
-              handleAssignmentReceived(response.data[0]);
-            }
-          })
-          .catch(error => {
-            console.log('Error finding assignments', error && error.message);
-          });
+        loginService.checkLogin(setStatus);
       }
     });
   }, []);

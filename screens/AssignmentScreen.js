@@ -4,60 +4,111 @@ import { ScrollView } from 'react-native-gesture-handler';
 import moveToBottom from '../components/moveToBottom'
 
 import {statusService} from '../services/StatusService';
-import StatusContext from "../components/StatusContext";
 import AssignmentContext     from '../components/AssignmentContext';
 import axios from "axios";
 import config from "../constants/Config";
+import StatusTextContext from "../components/StatusTextContext";
 
-/*
+export default function AssignmentScreen({navigation}) {
+  const [status, setStatus]         = useContext(StatusTextContext);
+  const [assignment, setAssignment] = useContext(AssignmentContext);
+  const [buttons, setButtons]       = useState([]);
 
-      <View style={styles.assignmentContainer}>
-        (status && status.assignment ?
-        <Text style={styles.assignmentStatus}>Status:{status.assignment.currentStatus}</Text>
-        : <Text></Text>)
-      </View>
-      <View>
-      {(status.assignment.latestStatus && status.assignment.latestStatus.status === 'RECEIVED'?
-          <Text style={styles.assignmentText}>Skall du åka</Text> :
-          <Text style={styles.assignmentText}>Annan status</Text>
-      )}
-      </View>
+  const checkForAssignment = () => {
+    axios.get(config.serverUrl + '/api/assignments/findAssignmentsForCurrentUser')
+    .then(response => {
+      if (response && response.data && response.data.length > 0) {
+        setAssignment(response.data[0]);
+      }
+    })
+    .catch(error => {
+      console.log('Error finding assignments', error && error.message);
+    });
+  };
 
-
- */
-
-export default function AssignmentScreen() {
-  const [statusMessage, setStatusMessage] = useState('');
-  const [assignment, setAssignment]       = useContext(AssignmentContext);
+  function sendAssignmentStatus(aStatus) {
+    return () => {
+      axios.post(config.serverUrl + '/api/assignments/' + assignment._id + '/' + aStatus)
+      .then(response => {
+        console.log('Confirmed delivery', response.data);
+        return checkForAssignment();
+      })
+      .catch(error => {
+        console.log('Error confirming assignments', error && error.message);
+      });
+    };
+  }
 
   useEffect( () => {
-    if (assignment && assignment.latestStatus && assignment.latestStatus.status === 'QUERIED') {
-      axios.post(config.serverUrl + '/api/assignments/' + assignment._id + '/received')
-        .then(response => {
-          console.log('Confirmed delivery', response.data);
-        })
-        .catch(error => {
-          console.log('Error confirming assignments', error && error.message);
-        });
+    if (assignment && assignment.latestStatus) {
+      console.log('Handling assignment state', assignment.latestStatus.status);
+      switch (assignment.latestStatus.status) {
+        case 'QUERIED':
+          sendAssignmentStatus('received')();
+          break;
+        case 'RECEIVED':
+          setButtons([
+            {text: 'Acceptera', fun: sendAssignmentStatus('accept')},
+            {text: 'Avböj', fun: sendAssignmentStatus('reject')}]);
+          break;
+        case 'ACCEPTED':
+          setButtons([
+            {text: 'Åker', fun: sendAssignmentStatus('moving')},
+            {text: 'Framme', fun: sendAssignmentStatus('at_goal')},
+            {text: 'Klar', fun: sendAssignmentStatus('ready')}]);
+          break;
+        case 'MOVING':
+          setButtons([
+            {text: 'Framme', fun: sendAssignmentStatus('at_goal')},
+            {text: 'Klar', fun: sendAssignmentStatus('ready')}]);
+          break;
+        case 'AT_GOAL':
+          setButtons([
+            {text: 'Klar', fun: sendAssignmentStatus('ready')}]);
+          break;
+        case 'READY':
+          setButtons([
+            {text: 'Hemma', fun: sendAssignmentStatus('at_home')}]);
+          break;
+        case 'REJECTED':
+        case 'AT_HOME':
+          setButtons([]);
+          navigation.navigate('Status');
+          break;
+      }
     }
   }, [assignment]);
+
+  useEffect( () => {
+    checkForAssignment();
+  }, []);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.iconContainer}>
-        <TouchableOpacity onPress={() => statusService.getAvailableStatus(setStatusMessage)}>
+        <TouchableOpacity onPress={() => statusService.getAvailableStatus(setStatus)}>
           <Image source ={require('../assets/images/icon.png')}  style={styles.optiresImage}/>
         </TouchableOpacity>
       </View>
       <View style={styles.iconContainer}>
-      {assignment?
-        <View>
-          <Text style={styles.assignmentTitle}>{assignment.titel}</Text>
-          <Text style={styles.assignmentText}>{assignment.beskrivning}</Text>
-          <Text>We have an assignment {assignment.currentStatus}</Text>
-        </View>
-        : <Text>No assignment</Text>
-      }
+        {assignment?
+          <View>
+            <Text style={styles.assignmentTitle}>{assignment.titel}</Text>
+            <Text style={styles.assignmentText}>{assignment.beskrivning}</Text>
+            <Text>We have an assignment {assignment.currentStatus}</Text>
+          </View>
+          : <Text>No assignment</Text>
+        }
+        { buttons.map((button, i) => {
+            return (
+              <View style={styles.statusButtonContainer} key={i}>
+                <TouchableOpacity onPress={button.fun} style={styles.statusButton}>
+                  <Text style={styles.statusText}>{button.text}</Text>
+                </TouchableOpacity>
+              </View>
+            )
+          })
+        }
       </View>
 
     </ScrollView>
@@ -80,6 +131,21 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginTop: 3,
     marginLeft: -10,
+  },
+  loginButtonContainer: {
+    marginTop: 15,
+    alignItems: 'center',
+  },
+  statusButton: {
+    paddingVertical: 15,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#fff',
+    padding: 10,
+  },
+  statusText: {
+    fontSize: 30,
+    color: '#fff',
   },
   iconContainer: {
     alignItems: 'center',
@@ -130,10 +196,5 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     color: 'white',
     marginTop: 1,
-  },
-  statusText: {
-    marginBottom: 40,
-    fontSize: 14,
-    color: '#fff',
   },
 });
