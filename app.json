@@ -32,7 +32,12 @@
           "location"
         ],
         "NSLocationAlwaysAndWhenInUseUsageDescription": "För bästa funktion behöver OptiresNG behöver tillgång till din position hela tiden",
-        "NSLocationWhenInUseUsageDescription": "OptiresNG behöver tillgång till din position"
+        "NSLocationWhenInUseUsageDescription": "OptiresNG behöver tillgång till din position",
+        "LSApplicationQueriesSchemes": [
+          "apple-maps",
+          "google-maps",
+          "waze"
+        ]
       },
       "bundleIdentifier": "se.optiresng.client",
       "buildNumber": "0.2.1",

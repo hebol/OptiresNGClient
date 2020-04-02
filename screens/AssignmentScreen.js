@@ -1,13 +1,13 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import moveToBottom from '../components/moveToBottom'
 
 import {statusService} from '../services/StatusService';
 import AssignmentContext     from '../components/AssignmentContext';
 import axios from "axios";
 import config from "../constants/Config";
 import StatusTextContext from "../components/StatusTextContext";
+import { showLocation } from 'react-native-map-link'
 
 export default function AssignmentScreen({navigation}) {
   const [status, setStatus]         = useContext(StatusTextContext);
@@ -24,6 +24,12 @@ export default function AssignmentScreen({navigation}) {
     .catch(error => {
       console.log('Error finding assignments', error && error.message);
     });
+  };
+
+  const navigateToTarget = () => {
+    showLocation({...assignment.position})
+      .then(() => console.log('Navigation launched!'))
+      .catch(error => consol.log('Launch navigation error', error && error.message));
   };
 
   function sendAssignmentStatus(aStatus) {
@@ -48,27 +54,28 @@ export default function AssignmentScreen({navigation}) {
           break;
         case 'RECEIVED':
           setButtons([
-            {text: 'Acceptera', fun: sendAssignmentStatus('accept')},
-            {text: 'Avböj', fun: sendAssignmentStatus('reject')}]);
+            {text: 'Acceptera', style:styles.greenColorOption, fun: sendAssignmentStatus('accept')},
+            {text: 'Avböj',     style:styles.redColorOption,   fun: sendAssignmentStatus('reject')}]);
           break;
         case 'ACCEPTED':
           setButtons([
-            {text: 'Åker', fun: sendAssignmentStatus('moving')},
-            {text: 'Framme', fun: sendAssignmentStatus('at_goal')},
-            {text: 'Klar', fun: sendAssignmentStatus('ready')}]);
+            {text: 'Åker',   style:styles.greenColorOption, fun: sendAssignmentStatus('moving')},
+            {text: 'Framme', style:styles.greenColorOption, fun: sendAssignmentStatus('at_goal')},
+            {text: 'Klar',   style:styles.greenColorOption, fun: sendAssignmentStatus('ready')}]);
           break;
         case 'MOVING':
           setButtons([
-            {text: 'Framme', fun: sendAssignmentStatus('at_goal')},
-            {text: 'Klar', fun: sendAssignmentStatus('ready')}]);
+            {text: 'Navigera', style:styles.greenColorOption, fun: navigateToTarget},
+            {text: 'Framme', style:styles.greenColorOption, fun: sendAssignmentStatus('at_goal')},
+            {text: 'Klar',   style:styles.greenColorOption, fun: sendAssignmentStatus('ready')}]);
           break;
         case 'AT_GOAL':
           setButtons([
-            {text: 'Klar', fun: sendAssignmentStatus('ready')}]);
+            {text: 'Klar', style:styles.greenColorOption, fun: sendAssignmentStatus('ready')}]);
           break;
         case 'READY':
           setButtons([
-            {text: 'Hemma', fun: sendAssignmentStatus('at_home')}]);
+            {text: 'Hemma', style:styles.greenColorOption, fun: sendAssignmentStatus('at_home')}]);
           break;
         case 'REJECTED':
         case 'AT_HOME':
@@ -102,7 +109,7 @@ export default function AssignmentScreen({navigation}) {
         { buttons.map((button, i) => {
             return (
               <View style={styles.statusButtonContainer} key={i}>
-                <TouchableOpacity onPress={button.fun} style={styles.statusButton}>
+                <TouchableOpacity onPress={button.fun} style={[styles.statusButton,button.style]}>
                   <Text style={styles.statusText}>{button.text}</Text>
                 </TouchableOpacity>
               </View>

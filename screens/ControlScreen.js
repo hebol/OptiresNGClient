@@ -1,29 +1,25 @@
 import React, {useState, useEffect, useContext} from 'react';
 import { StyleSheet, View } from 'react-native';
-import axios from 'axios';
-import config from '../constants/Config';
-import moveToBottom from '../components/moveToBottom'
 
 import {notificationService} from '../services/NotificationService';
 import {loginService}        from '../services/LoginService';
 import {locationService}     from '../services/LocationService';
 import { AppState }          from 'react-native';
-import AssignmentContext     from '../components/AssignmentContext';
 import StatusContext         from '../components/StatusContext';
+import StatusTextContext     from '../components/StatusTextContext';
 import SystemStatusContext   from '../components/SystemStatusContext';
 import {statusService}       from '../services/StatusService';
 
 export default function ControlScreen({navigation}) {
-  const [statusMessage, setStatusMessage] = useState('');
-  const [assignment, setAssignment]       = useContext(AssignmentContext);
-  const [status, setStatus]               = useContext(StatusContext);
-  const [systemStatus, setSystemStatus]   = useContext(SystemStatusContext);
+  const [status, setStatus]             = useContext(StatusContext);
+  const [statusText, setStatusText]     = useContext(StatusTextContext);
+  const [systemStatus, setSystemStatus] = useContext(SystemStatusContext);
 
   useEffect(() => {
     console.log('ControlScreen init');
     navigation.navigate('Login');
 
-    notificationService.registerForPushNotificationsAsync(setStatusMessage, (notification) => {
+    notificationService.registerForPushNotificationsAsync(setStatusText, (notification) => {
         console.log('Notification: ', notification);
         switch (notification.data && notification.data.type) {
           case 'TEST_MESSAGE':
@@ -37,6 +33,7 @@ export default function ControlScreen({navigation}) {
     );
     statusService.subscribe(aStatus => {
       console.log('Control screen Setting status to', aStatus);
+      setStatusText(aStatus);
       setStatus(aStatus);
       switch (aStatus) {
         case 'AVAILABLE':
@@ -63,21 +60,16 @@ export default function ControlScreen({navigation}) {
 
     loginService.subscribe((isLoggedIn, error) => {
       setSystemStatus( {color: isLoggedIn ? 'green' : (error? 'red' : 'grey')});
-      isLoggedIn && statusService.getAvailableStatus(setStatus);
+      isLoggedIn && statusService.getAvailableStatus(setStatusText);
     });
 
     AppState.addEventListener('change', (newState) => {
       console.log('New app state', newState);
       if (newState === 'active') {
-        loginService.checkLogin(setStatus);
+        loginService.checkLogin(setStatusText);
       }
     });
   }, []);
-
-  function handleAssignmentReceived(anAssignment) {
-    setAssignment(anAssignment);
-    navigation.navigate('Assignment');
-  }
 
   return (
     <View style={styles.container}>
