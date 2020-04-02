@@ -9,7 +9,7 @@
       "android",
       "web"
     ],
-    "version": "0.1.0",
+    "version": "0.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "optiresng",
@@ -40,7 +40,7 @@
         ]
       },
       "bundleIdentifier": "se.optiresng.client",
-      "buildNumber": "0.2.1",
+      "buildNumber": "0.3.0",
       "config": {
         "usesNonExemptEncryption": false
       },
