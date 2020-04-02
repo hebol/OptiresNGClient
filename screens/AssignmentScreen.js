@@ -19,6 +19,14 @@ export default function AssignmentScreen({navigation}) {
     .then(response => {
       if (response && response.data && response.data.length > 0) {
         setAssignment(response.data[0]);
+      } else {
+        statusService.getAvailableStatus(setStatus)
+          .then(status => {
+            if (status === 'AVAILABLE' || status === 'NOT_AVAILABLE') {
+              setAssignment(null);
+              navigation.navigate('Status');
+            }
+          });
       }
     })
     .catch(error => {
@@ -75,8 +83,14 @@ export default function AssignmentScreen({navigation}) {
           break;
         case 'READY':
           setButtons([
+            {text: 'Åker hem', fun: sendAssignmentStatus('moving_home')},
+            {text: 'Hemma', fun: sendAssignmentStatus('at_home')}]);
+          break;
+        case 'MOVING_HOME':
+          setButtons([
             {text: 'Hemma', style:styles.greenColorOption, fun: sendAssignmentStatus('at_home')}]);
           break;
+        case 'CANCELED':
         case 'REJECTED':
         case 'AT_HOME':
           setButtons([]);
@@ -93,7 +107,7 @@ export default function AssignmentScreen({navigation}) {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.iconContainer}>
-        <TouchableOpacity onPress={() => statusService.getAvailableStatus(setStatus)}>
+        <TouchableOpacity onPress={() => checkForAssignment()}>
           <Image source ={require('../assets/images/icon.png')}  style={styles.optiresImage}/>
         </TouchableOpacity>
       </View>

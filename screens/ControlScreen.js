@@ -40,11 +40,14 @@ export default function ControlScreen({navigation}) {
           locationService.startLocationTracking();
           navigation.navigate('Status');
           break;
+
         case 'NOT_AVAILABLE':
           locationService.stopLocationTracking();
           navigation.navigate('Status');
           break;
+
         case 'ON_ASSIGNMENT':
+        case 'MOVING_HOME':
           locationService.startLocationTracking();
           navigation.navigate('Assignment');
           break;
