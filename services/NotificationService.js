@@ -5,13 +5,27 @@ import config from '../constants/Config';
 import axios from "axios";
 
 const NotificationService = () => {
+  let subscribers = {};
+
   return {
-    registerForPushNotificationsAsync: async function (setStatusMessage) {
+    subscribe: (sub) => {
+      subscribers[sub] = sub;
+      console.log('Has added subscriber!');
+    },
+    notify: (notification) => {
+      const location = coords;
+      Object.values(subscribers).forEach((sub) => sub(location))
+    },
+    unsubscribe: (sub) => {
+      delete subscribers[sub];
+    },
+    listenToNotifications: async function (setStatusMessage) {
       const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
 
       // Stop here if the user did not grant permissions
       if (status !== 'granted') {
         console.log('No notification permissions!');
+        setStatusMessage && setStatusMessage('No Push permissions!');
         return;
       } else {
         setStatusMessage && setStatusMessage('Push allowed:' + status);

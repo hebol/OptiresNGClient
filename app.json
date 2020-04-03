@@ -26,6 +26,10 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "android": {
+      "package": "se.optiresng.client",
+      "versionCode": 1
+    },
     "ios": {
       "infoPlist": {
         "UIBackgroundModes": [

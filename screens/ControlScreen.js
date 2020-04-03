@@ -5,6 +5,7 @@ import {notificationService} from '../services/NotificationService';
 import {loginService}        from '../services/LoginService';
 import {locationService}     from '../services/LocationService';
 import { AppState }          from 'react-native';
+import AssignmentContext     from '../components/AssignmentContext';
 import StatusContext         from '../components/StatusContext';
 import StatusTextContext     from '../components/StatusTextContext';
 import SystemStatusContext   from '../components/SystemStatusContext';
@@ -19,14 +20,17 @@ export default function ControlScreen({navigation}) {
     console.log('ControlScreen init');
     navigation.navigate('Login');
 
-    notificationService.registerForPushNotificationsAsync(setStatusText, (notification) => {
+    notificationService.listenToNotifications(setStatusText);
+    notificationService.subscribe((notification) => {
         console.log('Notification: ', notification);
         switch (notification.data && notification.data.type) {
           case 'TEST_MESSAGE':
             alert('I received a test notification!! '  + JSON.stringify(notification));
             break;
           case 'ASSIGNMENT':
-            alert('I received an assignment!! '  + JSON.stringify(notification));
+            alert('I received an assignment!! '  + JSON.stringify(notification.assignment));
+            setAssignment(notification.assignment);
+            statusService.getAvailableStatus(setStatusText);
             break;
         }
       }
@@ -73,6 +77,11 @@ export default function ControlScreen({navigation}) {
       }
     });
   }, []);
+
+  function handleAssignmentReceived(anAssignment) {
+    setAssignment(anAssignment);
+    navigation.navigate('Assignment');
+  }
 
   return (
     <View style={styles.container}>
