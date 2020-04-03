@@ -13,6 +13,7 @@ import AssignmentContext from './components/AssignmentContext';
 import StatusContext from './components/StatusContext';
 import SystemStatusContext from './components/SystemStatusContext';
 import StatusTextContext from './components/StatusTextContext';
+import config from './constants/Config';
 
 const Stack = createStackNavigator();
 
@@ -32,9 +33,9 @@ export default function App(props) {
   const statusTextHook = newText => {
     return setStatusText(newText)
   };
-  const [systemStatus, setSystemStatus] = useState({color:'gray'});
+  const [systemStatus, setSystemStatus] = useState({color:'gray', text: config.channel});
   const systemStatusHook = newValue => {
-    return setSystemStatus(newValue)
+    return setSystemStatus({...systemStatus,...newValue})
   };
 
   // Load any resources or data that we need prior to rendering the app
@@ -84,7 +85,9 @@ export default function App(props) {
           </SystemStatusContext.Provider>
         </AssignmentContext.Provider>
         <View style={styles.statusView}>
-          <View style={[styles.statusCircle, {backgroundColor: (systemStatus.color)}]}/>
+          <View style={[styles.statusCircle, {backgroundColor: (systemStatus.color)}]}>
+            <Text style={styles.statusText}>{systemStatus.text}</Text>
+          </View>
           <Text style={styles.statusText}>{statusText}</Text>
         </View>
       </View>

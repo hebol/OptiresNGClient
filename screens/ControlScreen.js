@@ -18,6 +18,7 @@ export default function ControlScreen({navigation}) {
 
   useEffect(() => {
     console.log('ControlScreen init');
+
     navigation.navigate('Login');
 
     notificationService.listenToNotifications(setStatusText);
