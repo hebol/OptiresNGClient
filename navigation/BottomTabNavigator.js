@@ -10,10 +10,10 @@ import {StyleSheet} from 'react-native';
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'Control';
-import StatusContext from "../components/StatusContext";
+import UserStatusContext from "../components/UserStatusContext";
 
 export default function BottomTabNavigator({ navigation, route }) {
-  const [status, setStatus]               = useContext(StatusContext);
+  const [userStatus, setUserStatus] = useContext(UserStatusContext);
   // Set the header title on the parent stack navigator depending on the
   // currently active tab. Learn more in the documentation:
   // https://reactnavigation.org/docs/en/screen-options-resolution.html

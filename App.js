@@ -10,7 +10,7 @@ import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
 
 import AssignmentContext from './components/AssignmentContext';
-import StatusContext from './components/StatusContext';
+import UserStatusContext from './components/UserStatusContext';
 import SystemStatusContext from './components/SystemStatusContext';
 import StatusTextContext from './components/StatusTextContext';
 import config from './constants/Config';
@@ -22,7 +22,7 @@ export default function App(props) {
   const [initialNavigationState, setInitialNavigationState] = React.useState();
   const containerRef = React.useRef();
   const { getInitialState } = useLinking(containerRef);
-  const statusHook = useState(null);
+  const userStatusHook = useState(null);
 
   const [assignment, setAssignment] = useState(null);
   const assignmentHook = anAssignment => {
@@ -33,7 +33,7 @@ export default function App(props) {
   const statusTextHook = newText => {
     return setStatusText(newText)
   };
-  const [systemStatus, setSystemStatus] = useState({color:'gray', text: config.channel});
+  const [systemStatus, setSystemStatus] = useState({color:'gray', text: config.channel, version: config.version});
   const systemStatusHook = newValue => {
     return setSystemStatus({...systemStatus,...newValue})
   };
@@ -73,20 +73,20 @@ export default function App(props) {
         <AssignmentContext.Provider value={[assignment, assignmentHook]}>
           <SystemStatusContext.Provider value={[systemStatus, systemStatusHook]}>
             <StatusTextContext.Provider value={[statusText, statusTextHook]}>
-              <StatusContext.Provider value = {statusHook}>
+              <UserStatusContext.Provider value = {userStatusHook}>
                   {Platform.OS === 'ios' && <StatusBar barStyle="default"/>}
                 <NavigationContainer style={styles.navigationContainer} ref={containerRef} initialState={initialNavigationState}>
                   <Stack.Navigator>
                     <Stack.Screen name="Root" component={BottomTabNavigator} style={styles.container} />
                   </Stack.Navigator>
                 </NavigationContainer>
-              </StatusContext.Provider>
+              </UserStatusContext.Provider>
             </StatusTextContext.Provider>
           </SystemStatusContext.Provider>
         </AssignmentContext.Provider>
         <View style={styles.statusView}>
           <View style={[styles.statusCircle, {backgroundColor: (systemStatus.color)}]}>
-            <Text style={styles.statusText}>{systemStatus.text}</Text>
+            <Text style={styles.channelText}>{systemStatus.text}</Text>
           </View>
           <Text style={styles.statusText}>{statusText}</Text>
         </View>
@@ -106,18 +106,27 @@ const styles = StyleSheet.create({
   statusView: {
     flexDirection: 'row',
     alignSelf: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
+
     margin: 20,
     backgroundColor: '#0096FF',
   },
   statusCircle: {
-    width:           30,
-    height:          30,
-    borderRadius:    15
+    width:        30,
+    height:       30,
+    borderRadius: 15
   },
   statusText: {
     fontSize: 20,
     color: '#fff',
     textAlign: 'center',
     flexGrow: 1,
+  },
+  channelText: {
+    paddingTop: 4,
+    fontSize: 14,
+    color: '#fff',
+    textAlign: 'center'
   }
 });

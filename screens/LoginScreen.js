@@ -19,14 +19,10 @@ export default function LoginScreen({navigation}) {
   }, []);
 
   const checkLogin = () => {
-    return loginService.checkLogin();
+    return loginService.checkLogin(setStatus);
   };
   const loginAsync = () => {
-    return loginService.loginAsync()
-    .then( status => {
-      status && navigation.navigate('Status');
-      return status;
-    });
+    return loginService.loginAsync(setStatus)
   };
 
   return (
@@ -104,58 +100,9 @@ const styles = StyleSheet.create({
     marginTop: 3,
     marginLeft: -10,
   },
-  welcomeImage: {
-    width: 100,
-    height: 80,
-    resizeMode: 'contain',
-    marginTop: 3,
-    marginLeft: -10,
-  },
   loginContainer: {
     alignItems: 'center',
     marginHorizontal: 50,
-  },
-  statusContainer: {
-    alignItems: 'center',
-    marginHorizontal: 20,
-    bottom: 0,
-  },
-  homeScreenFilename: {
-    marginVertical: 7,
-  },
-  getStartedText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    lineHeight: 24,
-    textAlign: 'center',
-  },
-  tabBarInfoContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    ...Platform.select({
-      ios: {
-        shadowColor: 'black',
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 20,
-      },
-    }),
-    alignItems: 'center',
-    backgroundColor: '#fbfbfb',
-    paddingVertical: 20,
-  },
-  tabBarInfoText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    textAlign: 'center',
-  },
-  navigationFilename: {
-    marginTop: 5,
   },
   loginButtonContainer: {
     marginTop: 15,
@@ -170,11 +117,6 @@ const styles = StyleSheet.create({
   },
   loginText: {
     fontSize: 30,
-    color: '#fff',
-  },
-  statusText: {
-    marginBottom: 20,
-    fontSize: 14,
     color: '#fff',
   },
 });

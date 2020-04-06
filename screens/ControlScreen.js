@@ -6,13 +6,15 @@ import {loginService}        from '../services/LoginService';
 import {locationService}     from '../services/LocationService';
 import { AppState }          from 'react-native';
 import AssignmentContext     from '../components/AssignmentContext';
-import StatusContext         from '../components/StatusContext';
+import UserStatusContext     from '../components/UserStatusContext';
 import StatusTextContext     from '../components/StatusTextContext';
 import SystemStatusContext   from '../components/SystemStatusContext';
 import {statusService}       from '../services/StatusService';
+import {assignmentService}   from '../services/AssignmentService';
 
 export default function ControlScreen({navigation}) {
-  const [status, setStatus]             = useContext(StatusContext);
+  const [status, setStatus]             = useContext(UserStatusContext);
+  const [assignment, setAssignment]     = useContext(AssignmentContext);
   const [statusText, setStatusText]     = useContext(StatusTextContext);
   const [systemStatus, setSystemStatus] = useContext(SystemStatusContext);
 
@@ -36,6 +38,11 @@ export default function ControlScreen({navigation}) {
         }
       }
     );
+
+    assignmentService.subscribe(assignment => {
+      setAssignment(assignment);
+    });
+
     statusService.subscribe(aStatus => {
       console.log('Control screen Setting status to', aStatus);
       setStatusText(aStatus);
@@ -53,6 +60,7 @@ export default function ControlScreen({navigation}) {
 
         case 'ON_ASSIGNMENT':
         case 'MOVING_HOME':
+          assignmentService.checkForAssignment();
           locationService.startLocationTracking();
           navigation.navigate('Assignment');
           break;
@@ -78,11 +86,6 @@ export default function ControlScreen({navigation}) {
       }
     });
   }, []);
-
-  function handleAssignmentReceived(anAssignment) {
-    setAssignment(anAssignment);
-    navigation.navigate('Assignment');
-  }
 
   return (
     <View style={styles.container}>

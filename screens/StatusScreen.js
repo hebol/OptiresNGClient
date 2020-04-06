@@ -6,14 +6,14 @@ import moveToBottom from '../components/moveToBottom'
 
 import {statusService} from '../services/StatusService';
 
-import StatusContext from "../components/StatusContext";
+import UserStatusContext from "../components/UserStatusContext";
 import StatusTextContext from "../components/StatusTextContext";
 
 export default function StatusScreen() {
-  const [status, setStatus]               = useContext(StatusContext);
-  const [statusText, setStatusText]       = useContext(StatusTextContext);
+  const [userStatus, setUserStatus]  = useContext(UserStatusContext);
+  const [statusText, setStatusText]  = useContext(StatusTextContext);
 
-  console.log('Current status is', status);
+  console.log('Current status is', userStatus);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -23,22 +23,22 @@ export default function StatusScreen() {
         </TouchableOpacity>
       </View>
 
-      <OptionButton icon="md-play" label="Tillgänglig" colorOption={styles.greenColorOption} selected={(status==='AVAILABLE')}
+      <OptionButton icon="md-play" label="Tillgänglig" colorOption={styles.greenColorOption} selected={(userStatus==='AVAILABLE')}
                     onPress={() => {
                       statusService.setIsAvailableStatus(true, setStatusText)
                         .then(status => {
                           status && setStatusText('Tillgänglig');
-                          setStatus('AVAILABLE');
+                          setUserStatus('AVAILABLE');
                         });
                     }}
       />
       <OptionButton
-        icon="md-square" label="Upptagen" colorOption={styles.redColorOption} selected={(status==='NOT_AVAILABLE')}
+        icon="md-square" label="Upptagen" colorOption={styles.redColorOption} selected={(userStatus==='NOT_AVAILABLE')}
         onPress={() => {
           statusService.setIsAvailableStatus(false, setStatusText)
             .then(status => {
               !status && setStatusText('Inte tillgänglig');
-              setStatus('NOT_AVAILABLE');
+              setUserStatus('NOT_AVAILABLE');
               setStatusText('Inte tillgänglig');
             });
         }}
@@ -74,11 +74,9 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   optiresImage: {
-    width: 200,
-    height: 200,
+    width: 150,
+    height: 150,
     resizeMode: 'contain',
-    marginTop: 3,
-    marginLeft: -10,
   },
   iconContainer: {
     alignItems: 'center',

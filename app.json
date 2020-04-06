@@ -28,7 +28,7 @@
     ],
     "android": {
       "package": "se.optiresng.client",
-      "versionCode": 1
+      "versionCode": 3
     },
     "ios": {
       "infoPlist": {
@@ -44,7 +44,7 @@
         ]
       },
       "bundleIdentifier": "se.optiresng.client",
-      "buildNumber": "0.3.0",
+      "buildNumber": "0.3.1",
       "config": {
         "usesNonExemptEncryption": false
       },

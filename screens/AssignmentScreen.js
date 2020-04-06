@@ -7,32 +7,13 @@ import AssignmentContext     from '../components/AssignmentContext';
 import axios from "axios";
 import config from "../constants/Config";
 import StatusTextContext from "../components/StatusTextContext";
-import { showLocation } from 'react-native-map-link'
+import {showLocation} from 'react-native-map-link'
+import {assignmentService}   from '../services/AssignmentService';
 
 export default function AssignmentScreen({navigation}) {
   const [status, setStatus]         = useContext(StatusTextContext);
   const [assignment, setAssignment] = useContext(AssignmentContext);
   const [buttons, setButtons]       = useState([]);
-
-  const checkForAssignment = () => {
-    axios.get(config.serverUrl + '/api/assignments/findAssignmentsForCurrentUser')
-    .then(response => {
-      if (response && response.data && response.data.length > 0) {
-        setAssignment(response.data[0]);
-      } else {
-        statusService.getAvailableStatus(setStatus)
-          .then(status => {
-            if (status === 'AVAILABLE' || status === 'NOT_AVAILABLE') {
-              setAssignment(null);
-              navigation.navigate('Status');
-            }
-          });
-      }
-    })
-    .catch(error => {
-      console.log('Error finding assignments', error && error.message);
-    });
-  };
 
   const navigateToTarget = () => {
     showLocation({...assignment.position})
@@ -44,8 +25,7 @@ export default function AssignmentScreen({navigation}) {
     return () => {
       axios.post(config.serverUrl + '/api/assignments/' + assignment._id + '/' + aStatus)
       .then(response => {
-        console.log('Confirmed delivery', response.data);
-        return checkForAssignment();
+        return assignmentService.checkForAssignment();
       })
       .catch(error => {
         console.log('Error confirming assignments', error && error.message);
@@ -54,6 +34,7 @@ export default function AssignmentScreen({navigation}) {
   }
 
   useEffect( () => {
+    console.log('Processing after assignment changed', assignment !== null);
     if (assignment && assignment.latestStatus) {
       console.log('Handling assignment state', assignment.latestStatus.status);
       switch (assignment.latestStatus.status) {
@@ -84,7 +65,7 @@ export default function AssignmentScreen({navigation}) {
         case 'READY':
           setButtons([
             {text: 'Åker hem', fun: sendAssignmentStatus('moving_home')},
-            {text: 'Hemma', fun: sendAssignmentStatus('at_home')}]);
+            {text: 'Hemma',    fun: sendAssignmentStatus('at_home')}]);
           break;
         case 'MOVING_HOME':
           setButtons([
@@ -94,20 +75,22 @@ export default function AssignmentScreen({navigation}) {
         case 'REJECTED':
         case 'AT_HOME':
           setButtons([]);
+          setAssignment(null);
+          setTimeout(() => statusService.getAvailableStatus(setStatus), 100);
           navigation.navigate('Status');
           break;
       }
+    } else {
+      console.log('No latestStatus', assignment);
+      setTimeout(() => statusService.getAvailableStatus(setStatus), 100);
+      navigation.navigate('Status');
     }
   }, [assignment]);
-
-  useEffect( () => {
-    checkForAssignment();
-  }, []);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.iconContainer}>
-        <TouchableOpacity onPress={() => checkForAssignment()}>
+        <TouchableOpacity onPress={() => assignmentService.checkForAssignment()}>
           <Image source ={require('../assets/images/icon.png')}  style={styles.optiresImage}/>
         </TouchableOpacity>
       </View>
