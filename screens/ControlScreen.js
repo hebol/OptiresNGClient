@@ -11,6 +11,26 @@ import StatusTextContext     from '../components/StatusTextContext';
 import SystemStatusContext   from '../components/SystemStatusContext';
 import {statusService}       from '../services/StatusService';
 import {assignmentService}   from '../services/AssignmentService';
+import * as BackgroundFetch from 'expo-background-fetch';
+import * as TaskManager from 'expo-task-manager';
+
+TaskManager.defineTask('PING_WITH_SERVER', () => {
+  console.log('Pinging server');
+    return statusService.getAvailableStatus()
+      .then(async status => {
+        if (status === 'AVAILABLE') {
+          await statusService.setIsAvailableStatus(status);
+        }
+        return status;
+      })
+      .then(status => {
+        return status === 'AVAILABLE' ? BackgroundFetch.Result.NewData : BackgroundFetch.Result.NoData;
+      })
+      .catch (error => {
+        console.log('Error fetching status in background');
+        return BackgroundFetch.Result.Failed;
+      });
+});
 
 export default function ControlScreen({navigation}) {
   const [status, setStatus]             = useContext(UserStatusContext);
@@ -85,6 +105,12 @@ export default function ControlScreen({navigation}) {
         loginService.checkLogin(setStatusText);
       }
     });
+
+    BackgroundFetch.registerTaskAsync('PING_WITH_SERVER', {
+      minimumInterval: 15 * 60,
+      stopOnTerminate: false,
+    });
+
   }, []);
 
   return (

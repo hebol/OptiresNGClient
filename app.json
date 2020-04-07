@@ -33,7 +33,8 @@
     "ios": {
       "infoPlist": {
         "UIBackgroundModes": [
-          "location"
+          "location",
+          "fetch"
         ],
         "NSLocationAlwaysAndWhenInUseUsageDescription": "För bästa funktion behöver OptiresNG behöver tillgång till din position hela tiden",
         "NSLocationWhenInUseUsageDescription": "OptiresNG behöver tillgång till din position",
@@ -44,7 +45,7 @@
         ]
       },
       "bundleIdentifier": "se.optiresng.client",
-      "buildNumber": "0.3.1",
+      "buildNumber": "0.4.0",
       "config": {
         "usesNonExemptEncryption": false
       },
