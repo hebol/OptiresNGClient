@@ -52,6 +52,7 @@ export default function BottomTabNavigator({ navigation, route }) {
         component={NavigationScreen}
         options={{
           title: 'Navigation',
+          tabBarVisible: false,
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-map" />,
         }}
       />
@@ -60,6 +61,7 @@ export default function BottomTabNavigator({ navigation, route }) {
         component={AssignmentScreen}
         options={{
           title: 'Uppdrag',
+          tabBarVisible: false,
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-map" />,
         }}
       />

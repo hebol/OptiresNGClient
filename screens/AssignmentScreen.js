@@ -14,6 +14,7 @@ export default function AssignmentScreen({navigation}) {
   const [status, setStatus]         = useContext(StatusTextContext);
   const [assignment, setAssignment] = useContext(AssignmentContext);
   const [buttons, setButtons]       = useState([]);
+  const [caseDescription, setCaseDescription] = useState('');
 
   const navigateToTarget = () => {
     showLocation({...assignment.position})
@@ -40,36 +41,43 @@ export default function AssignmentScreen({navigation}) {
       switch (assignment.latestStatus.status) {
         case 'QUERIED':
           sendAssignmentStatus('received')();
+          setCaseDescription('');
           break;
         case 'RECEIVED':
           setButtons([
             {text: 'Acceptera', style:styles.greenColorOption, fun: sendAssignmentStatus('accept')},
             {text: 'Avböj',     style:styles.redColorOption,   fun: sendAssignmentStatus('reject')}]);
+          setCaseDescription('');
           break;
         case 'ACCEPTED':
           setButtons([
             {text: 'Åker',   style:styles.greenColorOption, fun: sendAssignmentStatus('moving')},
             {text: 'Framme', style:styles.greenColorOption, fun: sendAssignmentStatus('at_goal')},
             {text: 'Klar',   style:styles.greenColorOption, fun: sendAssignmentStatus('ready')}]);
+          setCaseDescription(assignment.beskrivning);
           break;
         case 'MOVING':
           setButtons([
             {text: 'Navigera', style:styles.greenColorOption, fun: navigateToTarget},
             {text: 'Framme', style:styles.greenColorOption, fun: sendAssignmentStatus('at_goal')},
             {text: 'Klar',   style:styles.greenColorOption, fun: sendAssignmentStatus('ready')}]);
+          setCaseDescription(assignment.beskrivning);
           break;
         case 'AT_GOAL':
           setButtons([
             {text: 'Klar', style:styles.greenColorOption, fun: sendAssignmentStatus('ready')}]);
+          setCaseDescription(assignment.beskrivning);
           break;
         case 'READY':
           setButtons([
             {text: 'Åker hem', fun: sendAssignmentStatus('moving_home')},
             {text: 'Hemma',    fun: sendAssignmentStatus('at_home')}]);
+          setCaseDescription(assignment.beskrivning);
           break;
         case 'MOVING_HOME':
           setButtons([
             {text: 'Hemma', style:styles.greenColorOption, fun: sendAssignmentStatus('at_home')}]);
+          setCaseDescription('');
           break;
         case 'CANCELED':
         case 'REJECTED':
@@ -78,6 +86,7 @@ export default function AssignmentScreen({navigation}) {
           setAssignment(null);
           setTimeout(() => statusService.getAvailableStatus(setStatus), 100);
           navigation.navigate('Status');
+          setCaseDescription('');
           break;
       }
     } else {
@@ -98,8 +107,7 @@ export default function AssignmentScreen({navigation}) {
         {assignment?
           <View>
             <Text style={styles.assignmentTitle}>{assignment.titel}</Text>
-            <Text style={styles.assignmentText}>{assignment.beskrivning}</Text>
-            <Text>We have an assignment {assignment.currentStatus}</Text>
+            <Text style={styles.assignmentText}>{caseDescription}</Text>
           </View>
           : <Text>No assignment</Text>
         }
