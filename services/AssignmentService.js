@@ -7,7 +7,6 @@ const AssignmentService = () => {
   const returnValue = {
     subscribe: (sub) => {
       subscribers[sub] = sub;
-      console.log('Has added assignment subscriber!');
     },
 
     notify: (status) => {
@@ -16,7 +15,6 @@ const AssignmentService = () => {
     },
 
     unsubscribe: (sub) => {
-      console.log('Has removed assignment subscriber!');
       delete subscribers[sub];
     },
 

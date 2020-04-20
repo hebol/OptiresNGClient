@@ -46,12 +46,11 @@ export default function ControlScreen({navigation}) {
     notificationService.listenToNotifications(setStatusText);
     notificationService.subscribe((notification) => {
         console.log('Notification: ', notification);
-        switch (notification.data && notification.data.type) {
+        switch (notification && notification.type) {
           case 'TEST_MESSAGE':
             alert('I received a test notification!! '  + JSON.stringify(notification));
             break;
           case 'ASSIGNMENT':
-            alert('I received an assignment!! '  + JSON.stringify(notification.assignment));
             setAssignment(notification.assignment);
             statusService.getAvailableStatus(setStatusText);
             break;
@@ -97,6 +96,7 @@ export default function ControlScreen({navigation}) {
     loginService.subscribe((isLoggedIn, error) => {
       setSystemStatus( {color: isLoggedIn ? 'green' : (error? 'red' : 'grey')});
       isLoggedIn && statusService.getAvailableStatus(setStatusText);
+      isLoggedIn && notificationService.sendTokenToServer(setStatusText);
     });
 
     AppState.addEventListener('change', (newState) => {

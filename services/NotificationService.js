@@ -4,18 +4,37 @@ import * as Permissions from 'expo-permissions';
 import config from '../constants/Config';
 import axios from "axios";
 import Constants from 'expo-constants';
+import {loginService}        from '../services/LoginService';
 
 const NotificationService = () => {
   let subscribers = {};
+  let foundToken;
+  let hasSentToken = false;
+  let _notificationSubscription;
 
-  return {
-    subscribe: (sub) => {
-      subscribers[sub] = sub;
-      console.log('Has added subscriber!');
+  const result = {
+    sendTokenToServer: function(setStatusMessage) {
+      if (foundToken && !hasSentToken) {
+//        console.log('Will send token', foundToken, 'to server');
+        axios.post(config.serverUrl + '/api/users/token', {token: foundToken})
+          .then(serverResponse => {
+//            console.log('Registered token on server');
+            hasSentToken = true;
+          })
+          .catch(error => {
+            console.log('==> ERROR Post token Returned', error);
+            setStatusMessage && setStatusMessage('Error sending token:' + error && error.message);
+            _notificationSubscription = null;
+          });
+      } else {
+        console.log('Token not found yet, or already sent!', {foundToken, hasSentToken});
+      }
     },
-    notify: (notification) => {
-      const location = coords;
-      Object.values(subscribers).forEach((sub) => sub(location))
+    subscribe: function(sub) {
+      subscribers[sub] = sub;
+    },
+    notify: function(notification) {
+      Object.values(subscribers).forEach((sub) => sub(notification))
     },
     unsubscribe: (sub) => {
       delete subscribers[sub];
@@ -33,24 +52,28 @@ const NotificationService = () => {
           setStatusMessage && setStatusMessage('Push allowed:' + status);
         }
 
-        // Has initialization already been performed?
-        if (!this._notificationSubscription) {
-          let token = await Notifications.getExpoPushTokenAsync();
-          setStatusMessage && setStatusMessage('Token found:' + token);
+        if (Platform.OS === 'android') {
+          const channelId = 'assignments';
+          Notifications.createChannelAndroidAsync(channelId, {
+            name: 'OptiresNG Uppdrag',
+            sound: true,
+            priority: 'max',
+            vibrate: [0, 250, 250, 250],
+          });
+        }
 
-          axios.post(config.serverUrl + '/api/users/token', {token})
-            .then(serverResponse => {
-              this._notificationSubscription = Notifications.addListener( (notification) => {
-                  console.log('Notification: ', notification);
-                  alert('I received a notification!!');
-                }
-              );
-            })
-            .catch(error => {
-              console.log('Post token Returned', error);
-              setStatusMessage && setStatusMessage('Error sending position:' + error && error.message);
-              this._notificationSubscription = null;
-            });
+        foundToken = await Notifications.getExpoPushTokenAsync();
+        result.sendTokenToServer(setStatusMessage);
+
+        // Has initialization already been performed?
+        if (!_notificationSubscription) {
+          _notificationSubscription = Notifications.addListener( function(notification) {
+              console.log('Received Notification of type : ', (notification && notification.data &&  notification.data.type));
+              result.notify(notification.data);
+            }
+          );
+
+          setStatusMessage && setStatusMessage('Token found:' + foundToken);
         } else {
           console.log('Already registered for notifications!');
         }
@@ -59,6 +82,7 @@ const NotificationService = () => {
       }
     }
   };
+  return result;
 };
 
 export const notificationService = NotificationService();

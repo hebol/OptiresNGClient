@@ -35,7 +35,6 @@ const LocationService = () => {
     },
     subscribe: (sub) => {
       subscribers[sub] = sub;
-      console.log('Has added subscriber!');
     },
     setLocation: (coords) => {
       const location = coords;
@@ -102,7 +101,7 @@ TaskManager.defineTask('RECEIVE_LOCATION_TASK', ({ data: {locations}, error }) =
     console.log('Received error for locations', error && error.message);
     return;
   }
-  console.log('Received new locations', locations, typeof locations);
+  console.log('Received new locations', locations.map(pos => 'Lat: ' + pos.coords.latitude + ', Long: ' + pos.coords.longitude));
   if (!Array.isArray(locations)) {
     console.log('Was not array, creating it');
     locations = [locations];

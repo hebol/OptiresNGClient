@@ -87,7 +87,6 @@ const LoginService = () => {
     },
     subscribe: (sub) => {
       subscribers[sub] = sub;
-      console.log('Has added subscriber!');
     },
     setLoginStatus: (status, error) => {
       Object.values(subscribers).forEach((sub) => sub(status, error))

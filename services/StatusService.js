@@ -7,7 +7,6 @@ const StatusService = () => {
   const returnValue = {
     subscribe: (sub) => {
       subscribers[sub] = sub;
-      console.log('Has added status subscriber!');
     },
 
     transmitStatus: (status) => {
@@ -16,7 +15,6 @@ const StatusService = () => {
     },
 
     unsubscribe: (sub) => {
-      console.log('Has removed status subscriber!');
       delete subscribers[sub];
     },
 
