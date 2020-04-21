@@ -58,7 +58,7 @@ export default function AssignmentScreen({navigation}) {
           break;
         case 'MOVING':
           setButtons([
-            {text: 'Navigera', style:styles.greenColorOption, fun: navigateToTarget},
+            {text: 'Navigera', style:styles.blueColorOption, fun: navigateToTarget},
             {text: 'Framme', style:styles.greenColorOption, fun: sendAssignmentStatus('at_goal')},
             {text: 'Klar',   style:styles.greenColorOption, fun: sendAssignmentStatus('ready')}]);
           setCaseDescription(assignment.beskrivning);
@@ -138,8 +138,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   optiresImage: {
-    width: 200,
-    height: 200,
+    width: 100,
+    height: 100,
     resizeMode: 'contain',
     marginTop: 3,
     marginLeft: -10,
@@ -149,7 +149,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statusButton: {
-    paddingVertical: 15,
+    marginVertical: 7,
+    paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 2,
     borderColor: '#fff',
@@ -198,6 +199,10 @@ const styles = StyleSheet.create({
   redColorOption: {
     borderColor: 'darkred',
     backgroundColor: 'red',
+  },
+  blueColorOption: {
+    borderColor: 'darkblue',
+    backgroundColor: 'blue',
   },
   greenColorOption: {
     borderColor: 'darkgreen',

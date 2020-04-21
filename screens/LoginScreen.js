@@ -1,15 +1,27 @@
 import React, {useState, useEffect, useContext} from 'react';
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { CheckBox } from 'react-native-elements';
+
 import { ScrollView } from 'react-native-gesture-handler';
 import moveToBottom from '../components/moveToBottom'
 
-import {loginService} from '../services/LoginService';
+import {loginService}    from '../services/LoginService';
+import {localStorage}    from '../services/LocalStorage';
 import StatusTextContext from "../components/StatusTextContext";
 
 export default function LoginScreen({navigation}) {
-  const [status, setStatus] = useContext(StatusTextContext);
+  const [statusText, setStatusText] = useContext(StatusTextContext);
+  const defaultLoginInfo = {username: '', password: '', saveCredentials:true};
+  const [loginInfo, setLoginInfo]   = useState(defaultLoginInfo);
+  const handleLoginInfo = (newValue) => {
+    setLoginInfo({...loginInfo, ...newValue});
+    console.log('New value', loginInfo);
+  };
 
   useEffect(() => {
+    localStorage.readObject('LOGIN_INFO', defaultLoginInfo)
+      .then(handleLoginInfo);
+
     checkLogin()
       .then(status => {
         if (status) {
@@ -18,11 +30,19 @@ export default function LoginScreen({navigation}) {
       });
   }, []);
 
+  useEffect(() => {
+    if (loginInfo.saveCredentials) {
+      localStorage.storeObject('LOGIN_INFO', loginInfo);
+    } else {
+      localStorage.storeObject('LOGIN_INFO', defaultLoginInfo);
+    }
+  }, [loginInfo]);
+
   const checkLogin = () => {
-    return loginService.checkLogin(setStatus);
+    return loginService.checkLogin(setStatusText);
   };
   const loginAsync = () => {
-    return loginService.loginAsync(setStatus)
+    return loginService.loginAsync(setStatusText)
   };
 
   return (
@@ -35,6 +55,19 @@ export default function LoginScreen({navigation}) {
           </View>
 
           <View style={styles.loginButtonContainer}>
+            <TextInput editable value={loginInfo.username} onChangeText={text => handleLoginInfo({ username:text })} autoCapitalize={'none'} autoCompleteType={'email'} placeholder={'Email'} style={styles.loginFields}/>
+            <TextInput editable value={loginInfo.password} onChangeText={text => handleLoginInfo({ password:text })} autoCapitalize={'none'} autoCompleteType={'password'} placeholder={'Lösenord'} secureTextEntry={true}style={styles.loginFields}/>
+          </View>
+          <View style={styles.loginButtonContainer}>
+            <CheckBox
+              size={30}
+              textStyle={styles.checkboxText}
+              containerStyle={styles.checkbox}
+              title='Spara inloggning'
+              checked={loginInfo.saveCredentials}
+              checkedColor={'#fff'}
+              uncheckedColor={'#fff'}
+              onPress={() => handleLoginInfo({saveCredentials: !loginInfo.saveCredentials})}/>
             <TouchableOpacity onPress={loginAsync} style={styles.loginButton}>
               <Text style={styles.loginText}>Login</Text>
             </TouchableOpacity>
@@ -94,8 +127,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   loginImage: {
-    width: 200,
-    height: 200,
+    width: 100,
+    height: 100,
     resizeMode: 'contain',
     marginTop: 3,
     marginLeft: -10,
@@ -115,8 +148,27 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     padding: 10,
   },
+  loginFields: {
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#fff',
+    width:250,
+    height:45,
+    padding:5,
+    marginBottom:5,
+    fontSize: 20,
+    color: '#fff',
+  },
   loginText: {
     fontSize: 30,
     color: '#fff',
   },
+  checkbox: {
+    backgroundColor: "#0096FF",
+    borderWidth: 0,
+  },
+  checkboxText: {
+    fontSize:20,
+    color: '#fff',
+  }
 });
