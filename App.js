@@ -35,7 +35,7 @@ export default function App(props) {
   const statusTextHook = newText => {
     return setStatusText(newText)
   };
-  const [systemStatus, setSystemStatus] = useState({color:'gray', text: config.channel, version: config.version});
+  const [systemStatus, setSystemStatus] = useState({color:'gray', text: config.channel, version: config.version, isLoggedIn: false});
   const systemStatusHook = newValue => {
     return setSystemStatus({...systemStatus,...newValue})
   };
@@ -103,9 +103,9 @@ export default function App(props) {
             <Text style={styles.channelText}>{systemStatus.text}</Text>
           </View>
           <Text style={styles.statusText}>{statusText}</Text>
-          <TouchableOpacity onPress={confirmLogout}>
+          {systemStatus.isLoggedIn && <TouchableOpacity onPress={confirmLogout}>
             <Text style={styles.logoutButton}>Logga ut</Text>
-          </TouchableOpacity>
+          </TouchableOpacity>}
         </View>
       </View>
     );

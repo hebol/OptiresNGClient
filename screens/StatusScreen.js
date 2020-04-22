@@ -2,7 +2,6 @@ import React, {useState, useContext} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
-import moveToBottom from '../components/moveToBottom'
 
 import {statusService} from '../services/StatusService';
 
