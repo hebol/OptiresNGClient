@@ -51,7 +51,7 @@ const LocationService = () => {
         console.log('Permission to access location was denied');
       }
 
-      Location.startLocationUpdatesAsync('RECEIVE_LOCATION_TASK', {
+      return Location.startLocationUpdatesAsync('RECEIVE_LOCATION_TASK', {
         accuracy: Location.Accuracy.BestForNavigation,
         showsBackgroundLocationIndicator: true,
         distanceInterval: 1000
@@ -66,7 +66,7 @@ const LocationService = () => {
     stopLocationTracking: async () => {
       console.log('Will stop location tracking!');
       returnValue.unsubscribe(receivedNewLocation);
-      Location.stopLocationUpdatesAsync('RECEIVE_LOCATION_TASK')
+      return Location.stopLocationUpdatesAsync('RECEIVE_LOCATION_TASK')
         .then(response => {
           console.log('received response from location service STOP', response);
         })

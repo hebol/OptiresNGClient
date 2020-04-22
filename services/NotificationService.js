@@ -4,7 +4,6 @@ import * as Permissions from 'expo-permissions';
 import config from '../constants/Config';
 import axios from "axios";
 import Constants from 'expo-constants';
-import {loginService}        from '../services/LoginService';
 
 const NotificationService = () => {
   let subscribers = {};
@@ -15,14 +14,13 @@ const NotificationService = () => {
   const result = {
     sendTokenToServer: function(setStatusMessage) {
       if (foundToken && !hasSentToken) {
-//        console.log('Will send token', foundToken, 'to server');
-        axios.post(config.serverUrl + '/api/users/token', {token: foundToken})
+        const url = config.serverUrl + '/api/users/token';
+        axios.post(url, {token: foundToken})
           .then(serverResponse => {
-//            console.log('Registered token on server');
             hasSentToken = true;
           })
           .catch(error => {
-            console.log('==> ERROR Post token Returned', error);
+            console.log('==> ERROR Post token Returned', error, 'on URL', url);
             setStatusMessage && setStatusMessage('Error sending token:' + error && error.message);
             _notificationSubscription = null;
           });
@@ -46,7 +44,7 @@ const NotificationService = () => {
         // Stop here if the user did not grant permissions
         if (status !== 'granted') {
           console.log('No notification permissions!');
-          setStatusMessage && setStatusMessage('No Push permissions!');
+          setStatusMessage && setStatusMessage('Push inte tillåtet!');
           return;
         } else {
           setStatusMessage && setStatusMessage('Push allowed:' + status);
@@ -73,7 +71,7 @@ const NotificationService = () => {
             }
           );
 
-          setStatusMessage && setStatusMessage('Token found:' + foundToken);
+          console.log('Token found', foundToken);
         } else {
           console.log('Already registered for notifications!');
         }

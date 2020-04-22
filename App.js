@@ -1,5 +1,5 @@
 import React, {useState, useContext} from 'react';
-import { Platform, StatusBar, StyleSheet, View, Text } from 'react-native';
+import {Platform, StatusBar, StyleSheet, View, Text, TouchableOpacity, Alert} from 'react-native';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,11 +9,13 @@ import { createStackNavigator } from '@react-navigation/stack';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
 
-import AssignmentContext from './components/AssignmentContext';
-import UserStatusContext from './components/UserStatusContext';
+import AssignmentContext   from './components/AssignmentContext';
+import UserStatusContext   from './components/UserStatusContext';
 import SystemStatusContext from './components/SystemStatusContext';
-import StatusTextContext from './components/StatusTextContext';
+import StatusTextContext   from './components/StatusTextContext';
 import config from './constants/Config';
+import {loginService} from "./services/LoginService";
+import {statusService} from "./services/StatusService";
 
 const Stack = createStackNavigator();
 
@@ -37,6 +39,18 @@ export default function App(props) {
   const systemStatusHook = newValue => {
     return setSystemStatus({...systemStatus,...newValue})
   };
+
+  const confirmLogout = () => {
+    Alert.alert("Logga ut","Är du säker du vill logga ut?",
+      [ { text: "Avbryt", style: "cancel" },
+        { text: "OK", onPress: () => {
+          statusService.setIsAvailableStatus(false)
+            .then(() => loginService.logoutAsync())
+          } }
+      ],
+      { cancelable: true }
+    );
+  }
 
   // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {
@@ -89,6 +103,9 @@ export default function App(props) {
             <Text style={styles.channelText}>{systemStatus.text}</Text>
           </View>
           <Text style={styles.statusText}>{statusText}</Text>
+          <TouchableOpacity onPress={confirmLogout}>
+            <Text style={styles.logoutButton}>Logga ut</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -128,5 +145,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#fff',
     textAlign: 'center'
+  },
+  logoutButton: {
+    paddingTop: 4,
+    fontSize: 14,
+    color: '#fff',
+    textAlign: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#fff',
+    borderRadius: 5
   }
 });

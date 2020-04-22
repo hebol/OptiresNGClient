@@ -19,7 +19,7 @@ const StatusService = () => {
     },
 
     setIsAvailableStatus: (status, statusFunction) => {
-      statusFunction('Setting status');
+      statusFunction && statusFunction('Setting status');
       return axios.post(config.serverUrl + '/api/userstatus', {status: status? 'AVAILABLE' : 'NOT_AVAILABLE'})
         .then(serverResponse => {
           statusFunction && statusFunction('Status sent: ' + JSON.stringify(serverResponse.data.status));

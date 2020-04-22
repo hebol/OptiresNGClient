@@ -6,6 +6,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import moveToBottom from '../components/moveToBottom'
 
 import {loginService}    from '../services/LoginService';
+import {statusService}       from '../services/StatusService';
 import {localStorage}    from '../services/LocalStorage';
 import StatusTextContext from "../components/StatusTextContext";
 
@@ -42,7 +43,8 @@ export default function LoginScreen({navigation}) {
     return loginService.checkLogin(setStatusText);
   };
   const loginAsync = () => {
-    return loginService.loginAsync(setStatusText)
+    return loginService.loginAsync(loginInfo.username, loginInfo.password, setStatusText)
+      .then(status => status && statusService.setIsAvailableStatus(true));
   };
 
   return (

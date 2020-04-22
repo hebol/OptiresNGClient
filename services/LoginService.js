@@ -1,69 +1,36 @@
 import axios from 'axios';
 import config from '../constants/Config';
-import {AuthSession} from "expo";
-
-const FB_APP_ID = '284161059217962';
-function toQueryString(params) {
-  var queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
-  return queryString.length > 0 ? '?' + encodeURI(queryString) : '';
-}
 
 const LoginService = () => {
   let subscribers = {};
 
   const services = {
-    loginAsync: async (setStatus) => {
-      const redirectUrl = AuthSession.getRedirectUrl();
-      let authUrl = 'https://www.facebook.com/v6.0/dialog/oauth' + toQueryString({
-        client_id: FB_APP_ID,
-        redirect_uri: redirectUrl,
-        code: 'code'
-      });
-      console.log(`Redirect URL (add this to Facebook): ${redirectUrl}`);
-      console.log(`AuthURL is:  ${authUrl}`);
-      setStatus && setStatus('');
-      const result = await AuthSession.startAsync({authUrl: authUrl})
-        .catch(error => {
-          log.info('Login failed', error && error.message);
-        });
-
-      if (result.type === 'success') {
-        console.log('Login success!' + JSON.stringify(result, null, 2));
-        setStatus && setStatus('So now we are logged in to FB!');
-
-        return axios.get(config.serverUrl + '/auth/facebook/callback2?code=' + result.params.code)
-          .then((response) => {
-            console.log('received from login: ' + JSON.stringify(response.data));
-            setStatus && setStatus('Received login data: ' + response);
-            return response && response.data && response.data.status;
-          })
-          .then(response => {
-            setStatus && setStatus('Login done!');
-            services.setLoginStatus(true);
-            return response;
-          })
-          .catch((error) => {
-            const aMessage = 'Error login: ' + error && error.message;
-            setStatus && setStatus(aMessage);
-            services.setLoginStatus(false, aMessage);
-            console.log('SNAFU', aMessage);
-          });
-
-      } else {
-        if (result.type === 'cancel') {
-          setStatus && setStatus('Login cancelled!');
+    logoutAsync: async (setStatus) => {
+      return axios.post(config.serverUrl + '/logout')
+        .then(response => {
+          console.log('Received from logout: ' + JSON.stringify(response.data));
           services.setLoginStatus(false);
-        } else {
-          if (result.type === 'error') {
-            setStatus && setStatus('Login error!');
-            services.setLoginStatus(false, result.message);
-          } else {
-            setStatus && setStatus('Unknown result type: ' + result.type);
-            services.setLoginStatus(false, result.message);
-          }
-        }
-        return Promise.resolve(false);
-      }
+        })
+    },
+    loginAsync: async (username, password, setStatus) => {
+      console.log('Will try to login at', config.serverUrl + '/login', 'with', {username, password})
+      setStatus && setStatus('Trying to login');
+      return axios.post(config.serverUrl + '/login', {username, password})
+        .then(response => {
+          console.log('Received from login: ' + JSON.stringify(response.data && response.data.status));
+          return response && response.data && response.data.status;
+        })
+        .then(response => {
+          setStatus && setStatus( response ? 'Login ok' : 'Inloggningsfel!!');
+          services.setLoginStatus(response);
+          return response;
+        })
+        .catch((error) => {
+          const aMessage = 'Inloggningsfel: ' + error && error.message;
+          setStatus && setStatus(aMessage);
+          services.setLoginStatus(false, aMessage);
+          console.log('SNAFU', aMessage);
+        });
     },
 
     checkLogin: (setStatus) => {

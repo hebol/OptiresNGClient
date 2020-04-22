@@ -97,6 +97,7 @@ export default function ControlScreen({navigation}) {
       setSystemStatus( {color: isLoggedIn ? 'green' : (error? 'red' : 'grey')});
       isLoggedIn && statusService.getAvailableStatus(setStatusText);
       isLoggedIn && notificationService.sendTokenToServer(setStatusText);
+      !isLoggedIn && navigation.navigate('Login');
     });
 
     AppState.addEventListener('change', (newState) => {
