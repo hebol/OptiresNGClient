@@ -89,7 +89,10 @@ const LocationService = () => {
       } else {
         return Promise.reject('Not allowed location');
       }
-    }
+    },
+    getNumberOfPositions: () => {
+      return axios.get(config.serverUrl + '/api/userposition/count');
+    },
   };
   return returnValue;
 };

@@ -26,10 +26,13 @@ const LoginService = () => {
           return response;
         })
         .catch((error) => {
-          const aMessage = 'Inloggningsfel: ' + error && error.message;
-          setStatus && setStatus(aMessage);
+          const aMessage = (error && error.message);
+          if (error.response && error.response.status === 401) {
+            setStatus && setStatus('Fel email/lösen');
+          } else {
+            console.log('Login SNAFU:', arguments);
+          }
           services.setLoginStatus(false, aMessage);
-          console.log('SNAFU', aMessage);
         });
     },
 

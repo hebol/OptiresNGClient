@@ -4,15 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import {locationService} from '../services/LocationService';
-import config from '../constants/Config';
-import axios from "axios";
 
 export default function NavigationScreen() {
   const [statusMessage, setStatusMessage] = useState('');
-
-  const getNumberOfPositions = () => {
-    return axios.get(config.serverUrl + '/api/userposition/count');
-  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -50,7 +44,7 @@ export default function NavigationScreen() {
         icon="md-compass"
         label="Antal positioner"
         onPress={() => {
-          getNumberOfPositions()
+          locationService.getNumberOfPositions()
             .then(response => {
               setStatusMessage(`Antal positioner: ${response.data.count}, senaste: ${response.data.last.createdAt}`)
             });

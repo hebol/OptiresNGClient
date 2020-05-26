@@ -15,7 +15,7 @@ import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
 
 TaskManager.defineTask('PING_WITH_SERVER', () => {
-  console.log('Pinging server');
+  console.log('Pinging server', new Date());
     return statusService.getAvailableStatus()
       .then(async status => {
         if (status === 'AVAILABLE') {
