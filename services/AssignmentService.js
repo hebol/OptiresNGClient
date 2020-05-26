@@ -18,14 +18,16 @@ const AssignmentService = () => {
       delete subscribers[sub];
     },
 
-    sendAssignmentStatus: aStatus => {
-      return axios.post(config.serverUrl + '/api/assignments/' + assignment._id + '/' + aStatus)
-        .then(response => {
-          return returnValue.checkForAssignment();
-        })
-        .catch(error => {
-          console.log('Error confirming assignments', error && error.message);
-        });
+    sendAssignmentStatus: (id, aStatus) => {
+      return () => {
+        return axios.post(config.serverUrl + '/api/assignments/' + id + '/' + aStatus)
+          .then(response => {
+            return returnValue.checkForAssignment();
+          })
+          .catch(error => {
+            console.log('Error confirming assignments', error && error.message);
+          });
+      }
     },
     checkForAssignment: () => {
       return axios.get(config.serverUrl + '/api/assignments/findAssignmentForCurrentUser')

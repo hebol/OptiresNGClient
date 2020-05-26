@@ -98,6 +98,7 @@ export default function ControlScreen({navigation}) {
       isLoggedIn && statusService.getAvailableStatus(setStatusText);
       isLoggedIn && notificationService.sendTokenToServer(setStatusText);
       !isLoggedIn && navigation.navigate('Login');
+      !isLoggedIn && locationService.stopLocationTracking();
       setSystemStatus({isLoggedIn});
     });
 

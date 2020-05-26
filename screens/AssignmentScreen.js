@@ -12,6 +12,7 @@ export default function AssignmentScreen({navigation}) {
   const [status, setStatus]         = useContext(StatusTextContext);
   const [assignment, setAssignment] = useContext(AssignmentContext);
   const [buttons, setButtons]       = useState([]);
+  const [caseTitle, setCaseTitle] = useState('');
   const [caseDescription, setCaseDescription] = useState('');
 
   const navigateToTarget = () => {
@@ -26,43 +27,43 @@ export default function AssignmentScreen({navigation}) {
       console.log('Handling assignment state', assignment.latestStatus.status);
       switch (assignment.latestStatus.status) {
         case 'QUERIED':
-          assignmentService.sendAssignmentStatus('received')();
+          assignmentService.sendAssignmentStatus(assignment._id, 'received')();
           setCaseDescription('');
           break;
         case 'RECEIVED':
           setButtons([
-            {text: 'Acceptera', style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus('accept')},
-            {text: 'Avböj',     style:styles.redColorOption,   fun: assignmentService.sendAssignmentStatus('reject')}]);
+            {text: 'Acceptera', style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus(assignment._id, 'accept')},
+            {text: 'Avböj',     style:styles.redColorOption,   fun: assignmentService.sendAssignmentStatus(assignment._id, 'reject')}]);
           setCaseDescription('');
           break;
         case 'ACCEPTED':
           setButtons([
-            {text: 'Åker',   style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus('moving')},
-            {text: 'Framme', style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus('at_goal')},
-            {text: 'Klar',   style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus('ready')}]);
+            {text: 'Åker',   style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus(assignment._id, 'moving')},
+            {text: 'Framme', style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus(assignment._id, 'at_goal')},
+            {text: 'Klar',   style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus(assignment._id, 'ready')}]);
           setCaseDescription(assignment.beskrivning);
           break;
         case 'MOVING':
           setButtons([
             {text: 'Navigera', style:styles.blueColorOption, fun: navigateToTarget},
-            {text: 'Framme', style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus('at_goal')},
-            {text: 'Klar',   style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus('ready')}]);
+            {text: 'Framme', style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus(assignment._id, 'at_goal')},
+            {text: 'Klar',   style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus(assignment._id, 'ready')}]);
           setCaseDescription(assignment.beskrivning);
           break;
         case 'AT_GOAL':
           setButtons([
-            {text: 'Klar', style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus('ready')}]);
+            {text: 'Klar', style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus(assignment._id, 'ready')}]);
           setCaseDescription(assignment.beskrivning);
           break;
         case 'READY':
           setButtons([
-            {text: 'Åker hem', fun: assignmentService.sendAssignmentStatus('moving_home')},
-            {text: 'Hemma',    fun: assignmentService.sendAssignmentStatus('at_home')}]);
+            {text: 'Åker hem', fun: assignmentService.sendAssignmentStatus(assignment._id, 'moving_home')},
+            {text: 'Hemma',    fun: assignmentService.sendAssignmentStatus(assignment._id, 'at_home')}]);
           setCaseDescription(assignment.beskrivning);
           break;
         case 'MOVING_HOME':
           setButtons([
-            {text: 'Hemma', style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus('at_home')}]);
+            {text: 'Hemma', style:styles.greenColorOption, fun: assignmentService.sendAssignmentStatus(assignment._id, 'at_home')}]);
           setCaseDescription('');
           break;
         case 'CANCELED':
@@ -92,7 +93,7 @@ export default function AssignmentScreen({navigation}) {
       <View style={styles.iconContainer}>
         {assignment?
           <View>
-            <Text style={styles.assignmentTitle}>{assignment.titel}</Text>
+            <Text style={styles.assignmentTitle}>{caseTitle}</Text>
             <Text style={styles.assignmentText}>{caseDescription}</Text>
           </View>
           : <Text>No assignment</Text>

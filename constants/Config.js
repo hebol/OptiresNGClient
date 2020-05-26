@@ -22,5 +22,5 @@ console.log('==>Version', version);
 let channel = manifest.releaseChannel ? manifest.releaseChannel : 'dev';
 let result = {...{Constants},...{channel}, ...config.default, ...config[manifest.releaseChannel],...{version}};
 
-console.log('Channel', channel, 'results in', Object.values(result).length, 'properties');
+console.log('Channel', channel, 'results in', Object.values(result).length, 'properties for', manifest.releaseChannel);
 export default result;
