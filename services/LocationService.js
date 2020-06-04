@@ -5,7 +5,6 @@ import * as Permissions from 'expo-permissions';
 import axios from "axios";
 import config from "../constants/Config";
 
-
 const receivedNewLocation = (location) => {
   const value = JSON.stringify(location);
   return sendPosition(location && location.coords);
@@ -15,6 +14,11 @@ function sendPosition(location) {
   return axios.post(config.serverUrl + '/api/userposition', location)
   .catch(error => {
     console.log('Location post returned error', error);
+    try {
+      axios.post(config.serverUrl + '/api/logs', {text: 'Error sending position: ' + JSON.stringify(error)})
+    } catch (error) {
+      console.log('LOL Error trying to log error', error)
+    }
   });
 }
 
