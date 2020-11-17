@@ -1,10 +1,9 @@
 {
   "expo": {
     "name": "OptiresNG Client",
-    "description": "OptiresNG är en applikation för att allokera resurser till dynamiska behov",
+    "description": "",
     "slug": "OptiresNGClient",
     "privacy": "public",
-    "sdkVersion": "36.0.0",
     "platforms": [
       "ios",
       "android",
@@ -51,7 +50,6 @@
         "usesNonExemptEncryption": false
       },
       "supportsTablet": false
-    },
-    "description": ""
+    }
   }
 }
